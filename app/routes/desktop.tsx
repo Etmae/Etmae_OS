@@ -1,0 +1,1 @@
+export { Windows11Desktop as default } from "../Pages/WindowsDesktop";

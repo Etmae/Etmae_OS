@@ -1,0 +1,112 @@
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-bounce-slow {
+    animation: bounce 2s infinite;
+  }
+}
+
+/* Smooth transitions for route changes */
+.page-transition-enter {
+  opacity: 0;
+  transform: scale(0.98);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Custom scrollbar for Windows style */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 6px;
+  border: 2px solid #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Theme variables */
+:root {
+  /* Light theme colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f3f3f3;
+  --bg-tertiary: #e5e5e5;
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --border-color: #d1d5db;
+  --accent-color: #0078d4;
+  --accent-hover: #106ebe;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --bg-tertiary: #404040;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #888888;
+  --border-color: #404040;
+  --accent-color: #0078d4;
+  --accent-hover: #106ebe;
+}
+
+/* Legacy dark mode support for scrollbars */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #5a5a5a;
+    border: 2px solid #2d2d2d;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6a6a6a;
+  }
+}
+
+/* Theme-aware scrollbar */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #5a5a5a;
+  border: 2px solid var(--bg-tertiary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: #6a6a6a;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+}
+
