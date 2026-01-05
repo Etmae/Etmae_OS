@@ -19,7 +19,7 @@ export interface DesktopIconData {
 }
 
 export const desktopIcons: DesktopIconData[] = [
-  { icon: React.createElement(User, { size: 32 }), label: 'About Me', route: '/hero' },
+  { icon: React.createElement(User, { size: 32 }), label: 'About Me', route: '/hero',  },
   { icon: React.createElement(FolderOpen, { size: 32 }), label: 'Projects', route: '/projects' },
   { icon: React.createElement(Mail, { size: 32 }), label: 'Contact', route: '/contact' },
   { icon: React.createElement(FileText, { size: 32 }), label: 'Resume', route: '/resume' },
