@@ -96,13 +96,14 @@ export const useDesktopStore = create<DesktopState>((set, get) => ({
   setHasNotifications: (has) => set({ hasNotifications: has }),
 
   // Background and general
-  backgroundImage: '',
+  backgroundImage: 'https://images5.alphacoders.com/115/1159855.jpg',
   setBackgroundImage: (image) => set({ backgroundImage: image }),
-  darkBackgroundImage: 'https://images.wallpapersden.com/image/download/windows-11-4k-green-glow_bW5qbW2UmZqaraWkpJRnamtlrWZpaWU.jpg',
-  lightBackgroundImage: 'https://via.placeholder.com/1920x1080/ffffff/000000?text=Light+Theme+Background', // Placeholder for light theme
+  darkBackgroundImage: 'https://images5.alphacoders.com/115/1159855.jpg',
+  lightBackgroundImage: 'https://wallpapercave.com/wp/wp10363825.jpg', // Placeholder for light theme
   showDesktop: true,
   setShowDesktop: (show) => set({ showDesktop: show }),
 }));
+
 
 
 

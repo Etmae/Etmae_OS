@@ -3,7 +3,7 @@ import React from 'react';
 import { useWindowStore } from '../../state/useWindowStore';
 import { Window } from './Window';
 
-export const WindowsManager = () => {
+export const WindowsManager: React.FC = () => {
   // We grab the array of IDs. 
   // Because it's an array of strings, this component only re-renders 
   // if a window is opened, closed, or re-ordered (focus changed).
@@ -23,3 +23,24 @@ export const WindowsManager = () => {
     </div>
   );
 };
+
+
+
+// import React from 'react';
+// import { useWindowStore } from '../../state/useWindowStore';
+// import { Window } from './Window';
+
+// export const WindowsManager: React.FC = () => {
+//   const windowOrder = useWindowStore((state) => state.windowOrder);
+
+//   return (
+//     // The z-20 ensures windows stay above desktop icons but below taskbar
+//     <div className="absolute inset-0 pointer-events-none z-20">
+//       {windowOrder.map((id) => (
+//         <div key={id} className="pointer-events-auto">
+//           <Window id={id} />
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
