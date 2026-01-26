@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { enterFullScreen } from '../utils/fullscreen'; // Adjust path as needed
 
+// ============================================================================
+// SIGN-IN COMPONENT
+// ============================================================================
 interface SignInProps {
   backgroundImage?: string;
   userName?: string;
@@ -18,29 +20,34 @@ export const WindowsSignIn: React.FC<SignInProps> = ({
   const navigate = useNavigate();
 
   const handleSignIn = async () => {
-    // 1. Fire the fullscreen request (User-initiated gesture)
-    await enterFullScreen();
-
-    // 2. Handle the navigation/state logic
+    console.log('handleSignIn called, onSuccess:', !!onSuccess);
+    console.log('navigate function:', navigate);
     if (onSuccess) {
+      // Use callback if provided (workflow mode)
+      console.log('Using onSuccess callback');
       onSuccess();
     } else {
+      // Fallback to navigation (standalone mode)
+      console.log('Navigating to /desktop');
       try {
         await navigate('/desktop');
+        console.log('Navigation completed successfully');
       } catch (error) {
         console.error('Navigation failed:', error);
       }
     }
+    console.log('User signed in!');
   };
 
   return (
-    <div className="relative min-h-screen bg-blue-600 overflow-hidden select-none">
+    <div className="relative min-h-screen bg-blue-600 overflow-hidden">
       {/* Blurred Background */}
       <div 
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url(${backgroundImage})`,
           filter: 'blur(40px) brightness(0.7)',
+          transform: 'scale(1.0)',
         }}
       />
 
@@ -49,50 +56,61 @@ export const WindowsSignIn: React.FC<SignInProps> = ({
         {/* User Avatar */}
         <div className="mb-8">
           <div 
-            className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-cover bg-center shadow-2xl border-2 border-white/10"
-            style={{ backgroundImage: `url(${userAvatar})` }}
+            className="w-32 h-32 sm:w-36 sm:h-36 md:w-50 md:h-50 rounded-full bg-cover bg-center shadow-2xl  border-opacity-20"
+            style={{
+              backgroundImage: `url(${userAvatar})`,
+            }}
           />
         </div>
 
         {/* Username */}
-        <h1 
-          className="text-white text-3xl md:text-4xl mb-12 tracking-tight" 
-          style={{ fontFamily: 'Segoe UI, system-ui, sans-serif', fontWeight: 400 }}
+        <div 
+          className="text-white text-2xl sm:text-3xl md:text-4xl mb-12" 
+          style={{ 
+            fontFamily: 'Segoe UI, sans-serif',
+            fontWeight: 450,
+          }}
         >
           {userName}
-        </h1>
+        </div>
 
         {/* Sign In Button */}
         <button
           type="button"
-          onClick={handleSignIn}
-          className="px-14 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/20 text-white rounded transition-all shadow-lg active:scale-95"
-          style={{ fontFamily: 'Segoe UI, sans-serif' }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSignIn();
+          }}
+          className="px-12 py-3 bg-blue-600 bg-opacity-90 hover:bg-opacity-100 text-white rounded text-base sm:text-lg transition-all shadow-lg"
+          style={{
+            fontFamily: 'Segoe UI, sans-serif',
+            fontWeight: 400,
+          }}
         >
           Sign in
         </button>
 
-        {/* Bottom Right Icons - Visual Only for now */}
-        <div className="absolute bottom-8 right-8 flex items-center gap-4 text-white/80">
-          <WifiIcon />
-          <BatteryIcon />
+        {/* Bottom Right Icons */}
+        <div className="absolute bottom-6 sm:bottom-8 right-6 sm:right-8 flex gap-1">
+          {/* WiFi Icon */}
+          <button className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center text-white opacity-80 hover:opacity-100 transition-opacity">
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
+            </svg>
+          </button>
+
+          {/* Battery Icon */}
+          <button className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center text-white opacity-80 hover:opacity-100 transition-opacity">
+            <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <rect x="2" y="7" width="18" height="10" rx="2" ry="2" />
+              <line x1="22" y1="11" x2="22" y2="13" strokeLinecap="round" />
+              <rect x="5" y="9.5" width="10" height="5" fill="currentColor" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
   );
 };
 
-// Simple Icon Components to keep JSX clean
-const WifiIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" />
-  </svg>
-);
-
-const BatteryIcon = () => (
-  <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-    <rect x="2" y="7" width="16" height="10" rx="2" />
-    <path d="M21 10v4" strokeLinecap="round" />
-    <path d="M6 10h6v4H6z" fill="currentColor" />
-  </svg>
-);

@@ -33,7 +33,7 @@ const Windows11Loader: React.FC<Windows11LoaderProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-9999">
+    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center z-[9999]">
       <div className="flex flex-col items-center">
         
         {/* Windows Logo - Only for Boot and Restart */}
@@ -90,5 +90,4 @@ const Windows11Loader: React.FC<Windows11LoaderProps> = ({
 };
 
 export default Windows11Loader;
-
 

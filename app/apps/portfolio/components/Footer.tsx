@@ -2,34 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Terminal, Cpu, ArrowUp, ShieldCheck } from 'lucide-react';
 
-interface SystemFooterProps {
-  theme?: 'dark' | 'light';
-  // Added scrollContainer to handle the custom scrolling div
-  scrollContainer?: React.RefObject<HTMLDivElement>;
-}
-
-export const SystemFooter: React.FC<SystemFooterProps> = ({ 
-  theme = 'dark', 
-  scrollContainer 
-}) => {
+export const SystemFooter = ({ theme = 'dark' }: { theme?: 'dark' | 'light' }) => {
   const isDark = theme === 'dark';
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // Updated logic to scroll the custom container instead of the window
-  const rebootToTop = () => {
-    if (scrollContainer?.current) {
-      scrollContainer.current.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  // Standardized Theme Colors
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
   const borderClass = isDark ? 'border-zinc-800' : 'border-zinc-200';
-  const bgClass = isDark ? 'bg-[#050505]' : 'bg-white';
 
   return (
-    <footer className={`w-full py-12 px-6 md:px-12 border-t transition-colors duration-700 ${borderClass} ${bgClass}`}>
+    <footer className={`w-full py-12 px-6 md:px-12 border-t ${borderClass} ${isDark ? 'bg-black' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto">
         
         {/* Top Row: Terminal Readout */}
@@ -42,8 +23,8 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
                 System Status: Operational
               </span>
             </div>
-            <p className={`text-xs font-mono leading-relaxed opacity-60 ${isDark ? 'text-zinc-400' : 'text-zinc-600'}`}>
-              Build: 2026.01.07_v2 <br />
+            <p className="text-xs font-mono leading-relaxed opacity-60">
+              Build: 2025.04.12_v2 <br />
               Environment: Production <br />
               Latency: 24ms
             </p>
@@ -51,7 +32,7 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
 
           <div className="space-y-4">
             <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${textSecondary}`}>Navigation</span>
-            <ul className={`text-sm space-y-2 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+            <ul className="text-sm space-y-2">
               <li><a href="#" className="hover:text-green-500 transition-colors">Work</a></li>
               <li><a href="#" className="hover:text-green-500 transition-colors">Lab</a></li>
               <li><a href="#" className="hover:text-green-500 transition-colors">About</a></li>
@@ -60,7 +41,7 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
 
           <div className="space-y-4">
             <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${textSecondary}`}>Socials</span>
-            <ul className={`text-sm space-y-2 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
+            <ul className="text-sm space-y-2">
               <li><a href="#" className="hover:text-green-500 transition-colors">GitHub</a></li>
               <li><a href="#" className="hover:text-green-500 transition-colors">LinkedIn</a></li>
               <li><a href="#" className="hover:text-green-500 transition-colors">Read.cv</a></li>
@@ -69,8 +50,8 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
 
           <div className="flex flex-col justify-between items-start md:items-end">
              <button 
-              onClick={rebootToTop}
-              className={`group flex items-center gap-3 px-4 py-2 border ${borderClass} rounded-full hover:border-green-500/50 transition-all ${isDark ? 'text-white' : 'text-black'}`}
+              onClick={scrollToTop}
+              className={`group flex items-center gap-3 px-4 py-2 border ${borderClass} rounded-full hover:border-green-500/50 transition-all`}
              >
                <span className="text-[10px] font-mono uppercase tracking-widest group-hover:text-green-500 transition-colors">Reboot to top</span>
                <ArrowUp size={14} className="group-hover:-translate-y-1 transition-transform group-hover:text-green-500" />
@@ -98,9 +79,9 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
 
           <div className="flex flex-col items-center md:items-end">
             <span className={`text-[10px] font-mono uppercase tracking-[0.4em] ${textSecondary}`}>
-              © 2026 // Etmae
+              © 2025 // Etmae
             </span>
-            <span className={`text-[9px] font-mono opacity-30 mt-1 uppercase ${isDark ? 'text-zinc-500' : 'text-zinc-400'}`}>
+            <span className="text-[9px] font-mono opacity-30 mt-1 uppercase">
               Designed as a living system. All rights reserved.
             </span>
           </div>
@@ -110,5 +91,3 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
     </footer>
   );
 };
-
-export default SystemFooter;
