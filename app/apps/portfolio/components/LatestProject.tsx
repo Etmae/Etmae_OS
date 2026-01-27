@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, ArrowRight } from 'lucide-react';
 
 // --- Types ---
@@ -9,15 +9,16 @@ interface Project {
   category: string;
   year: string;
   description: string;
-  image: string; // URL or path
+  image: string;
   link: string;
 }
 
 interface LatestProjectsProps {
   theme?: 'dark' | 'light';
+  // FIX: Added scrollContainer to the interface
+  scrollContainer?: React.RefObject<HTMLDivElement>;
 }
 
-// --- Dummy Data ---
 const projects: Project[] = [
   {
     id: '01',
@@ -25,7 +26,7 @@ const projects: Project[] = [
     category: 'Spatial Computing',
     year: '2024',
     description: 'A mixed-reality interface designed for precision engineering. Focusing on hand-tracking latency and holographic object permanence.',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop', // Abstract tech image
+    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop',
     link: '/work/aether-lens',
   },
   {
@@ -34,7 +35,7 @@ const projects: Project[] = [
     category: 'Fintech Mobile App',
     year: '2023',
     description: 'Redefining the mobile banking experience by removing friction. Biometric fluid navigation and zero-UI transaction layers.',
-    image: 'https://images.unsplash.com/photo-1481487484168-9b930d940884?q=80&w=2670&auto=format&fit=crop', // Abstract structure
+    image: 'https://images.unsplash.com/photo-1481487484168-9b930d940884?q=80&w=2670&auto=format&fit=crop',
     link: '/work/onyx',
   },
   {
@@ -43,25 +44,23 @@ const projects: Project[] = [
     category: 'E-Commerce Experience',
     year: '2023',
     description: 'A brutally minimalist fashion e-commerce platform. Heavy use of negative space and typographic hierarchy to drive conversion.',
-    image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2648&auto=format&fit=crop', // Abstract minimalist
+    image: 'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=2648&auto=format&fit=crop',
     link: '/work/mute-mode',
   },
 ];
 
-export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }) => {
+export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark', scrollContainer }) => {
   const isDark = theme === 'dark';
   
-  // Theme Classes
-  const bgClass = isDark ? 'bg-black' : 'bg-zinc-50';
+  const bgClass = isDark ? 'bg-[#050505]' : 'bg-zinc-50';
   const textPrimary = isDark ? 'text-zinc-100' : 'text-zinc-900';
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
   const borderClass = isDark ? 'border-zinc-800' : 'border-zinc-200';
   const buttonHover = isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white';
 
   return (
-    <section className={`relative w-full py-24 md:py-32 px-6 md:px-12 ${bgClass} ${textPrimary}`}>
+    <section className={`relative w-full py-24 md:py-32 px-6 md:px-12 transition-colors duration-700 ${bgClass} ${textPrimary}`}>
       
-      {/* Continuity Grain Layer */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay"
         style={{
@@ -71,7 +70,6 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }
 
       <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 relative z-10">
         
-        {/* --- STICKY HEADER (Left Margin) --- */}
         <aside className="lg:col-span-4 h-fit lg:sticky lg:top-32 flex flex-col justify-between">
           <div>
             <motion.div 
@@ -94,7 +92,6 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }
             </p>
           </div>
 
-          {/* Navigation to Main Project Page */}
           <div className="hidden lg:block mt-24">
             <a 
               href="/projects" 
@@ -106,7 +103,6 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }
           </div>
         </aside>
 
-        {/* --- PROJECT LIST (Right Content) --- */}
         <div className="lg:col-span-8 flex flex-col gap-20 md:gap-32">
           {projects.map((project, index) => (
             <ProjectCard 
@@ -114,10 +110,10 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }
               project={project} 
               theme={theme} 
               index={index}
+              scrollContainer={scrollContainer} // FIX: Pass container down
             />
           ))}
 
-          {/* Mobile Only 'View All' Button */}
           <div className="lg:hidden pt-8 border-t border-zinc-800/50">
              <a 
               href="/projects" 
@@ -130,33 +126,34 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({ theme = 'dark' }
             </a>
           </div>
         </div>
-
       </div>
     </section>
   );
 };
 
-// --- Individual Project Card Component ---
-const ProjectCard: React.FC<{ project: Project; theme: string; index: number }> = ({ project, theme, index }) => {
+// --- Updated Sub-component ---
+const ProjectCard: React.FC<{ 
+  project: Project; 
+  theme: string; 
+  index: number;
+  scrollContainer?: React.RefObject<HTMLDivElement> // FIX: Added type
+}> = ({ project, theme, index, scrollContainer }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDark = theme === 'dark';
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
-  const borderClass = isDark ? 'border-zinc-800' : 'border-zinc-200';
 
-  // Parallax Effect for Image
+  // FIX: Linked useScroll to the window container
   const { scrollYProgress } = useScroll({
+    container: scrollContainer, 
     target: containerRef,
     offset: ["start end", "end start"]
   });
   
-  // Image moves slightly slower than container to create depth
   const y = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
   const scale = useTransform(scrollYProgress, [0, 1], [1.05, 1.0]);
 
   return (
     <div ref={containerRef} className="group relative w-full flex flex-col gap-6">
-      
-      {/* 1. Header Info (Staggers in) */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -173,11 +170,10 @@ const ProjectCard: React.FC<{ project: Project; theme: string; index: number }> 
         </div>
       </motion.div>
 
-      {/* 2. The Image Window (Parallax) */}
       <div className="relative w-full aspect-[4/3] md:aspect-[16/9] overflow-hidden bg-zinc-900">
         <motion.div 
             style={{ y, scale }}
-            className="w-full h-[120%]" // Height > 100% for parallax room
+            className="w-full h-[120%]"
         >
           <img 
             src={project.image} 
@@ -186,7 +182,6 @@ const ProjectCard: React.FC<{ project: Project; theme: string; index: number }> 
           />
         </motion.div>
         
-        {/* Overlay Hover Interaction */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-black/20 backdrop-blur-[2px]">
           <div className="w-20 h-20 rounded-full bg-white text-black flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-500">
              <ArrowUpRight size={32} strokeWidth={1.5} />
@@ -194,7 +189,6 @@ const ProjectCard: React.FC<{ project: Project; theme: string; index: number }> 
         </div>
       </div>
 
-      {/* 3. Description & Link */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-2">
         <div className="md:col-span-8 md:col-start-1">
           <p className={`text-lg leading-relaxed ${textSecondary} max-w-2xl`}>
@@ -210,7 +204,6 @@ const ProjectCard: React.FC<{ project: Project; theme: string; index: number }> 
            </a>
         </div>
       </div>
-
     </div>
   );
 };

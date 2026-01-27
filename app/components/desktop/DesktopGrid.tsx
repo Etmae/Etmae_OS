@@ -6,7 +6,8 @@ import type { Position } from '../../common/desktopUtils';
 interface DesktopGridProps {
   selectedIconIndex: number | null;
   onIconSelect: (index: number | null) => void;
-  onIconClick: (route: string) => void;
+  // Renamed parameter to appId for clarity
+  onIconClick: (appId: string) => void; 
 }
 
 export const DesktopGrid: React.FC<DesktopGridProps> = ({
@@ -14,18 +15,18 @@ export const DesktopGrid: React.FC<DesktopGridProps> = ({
   onIconSelect,
   onIconClick
 }) => {
+  // Using the same initial positions from your existing logic
   const [iconPositions, setIconPositions] = useState<Position[]>([
-    { x: 32, y: 32 },
-    { x: 32, y: 140 },
-    { x: 32, y: 248 },
-    { x: 32, y: 356 },
-    { x: 32, y: 464 },
-    { x: 32, y: 572 },
-    { x: 32, y: 680 },
-    { x: 32, y: 788 },
-    { x: 32, y: 896 },
-    
-  ]);
+    { x: 0, y: 20 },
+    { x: 0, y: 120 },
+    { x: 0, y: 220 },
+    { x: 0, y: 320 },
+    { x: 0, y: 420 },
+    { x: 0, y: 520 },
+    { x: 0, y: 620 },
+    { x: 100, y: 20 },
+    { x: 100, y: 120 },
+  ])
 
   const updateIconPosition = useCallback((index: number, position: Position) => {
     setIconPositions(prev => {
@@ -37,6 +38,7 @@ export const DesktopGrid: React.FC<DesktopGridProps> = ({
 
   const handleDesktopClick = useCallback((e: MouseEvent) => {
     const target = e.target as HTMLElement;
+    // Standard Windows behavior: clicking the wallpaper deselects icons
     if (!target.closest('[data-desktop-icon]') &&
         !target.closest('[data-taskbar]') &&
         !target.closest('[data-start-menu]') &&
@@ -55,13 +57,14 @@ export const DesktopGrid: React.FC<DesktopGridProps> = ({
     <div className="relative z-10 w-full h-full">
       {desktopIcons.map((item, index) => (
         <DesktopIcon
-          key={index}
-          index={index}
+          key={item.appId} // Unique appId is a better key than index
+          appId={item.appId}
           icon={item.icon}
           label={item.label}
           isSelected={selectedIconIndex === index}
           onSelect={() => onIconSelect(index)}
-          onClick={() => onIconClick(item.route)}
+          // Pass the appId back up to the WindowsManager
+          onClick={() => onIconClick(item.appId)} 
           position={iconPositions[index]}
           onPositionChange={(pos) => updateIconPosition(index, pos)}
         />

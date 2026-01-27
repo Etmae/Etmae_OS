@@ -14,6 +14,8 @@ import "./app.css";
 
 import Windows11Loader from "./components/common/Windows11Loader";
 import { ThemeProvider } from "./components/common/ThemeProvider";
+import { SystemShell } from "./components/layout/SystemShell";
+
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -62,10 +64,12 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <Outlet />
+      <SystemShell>
+        <Outlet />
+      </SystemShell>
 
       {isLoading && (
-        <div className="fixed inset-0 z-[9999]">
+        <div className="fixed inset-0 z-9999">
           <Windows11Loader
             duration={3500} 
             onComplete={handleBootComplete}

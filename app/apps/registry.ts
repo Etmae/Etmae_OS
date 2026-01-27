@@ -5,6 +5,7 @@ import  Paint from './paint/Paint';
 // import { Browser } from './browser/Browser';
 import Chrome from './Chrome';
 import ImmersivePortfolioHero from './portfolio/Hero';
+import { User, FolderOpen, Mail, FileText } from 'lucide-react';
 
 export interface AppConfig {
   component: React.ComponentType<any>;
@@ -43,4 +44,9 @@ export const APP_REGISTRY: Record<string, AppConfig> = {
     title: 'Portfolio Hero',
     icon: '../assets/img/portfolio/windows-terminal.png',
   },
+  "about": {
+    component: ImmersivePortfolioHero,
+    title: 'hero',
+    icon: '../assets/img/portfolio/windows-terminal.png' ,
+  }
 };
