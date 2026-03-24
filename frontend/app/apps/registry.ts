@@ -6,6 +6,7 @@ import  Paint from './paint/Paint';
 import Chrome from './Chrome';
 import { PortfolioShell } from './portfolio/PortfolioShell';
 import { User, FolderOpen, Mail, FileText } from 'lucide-react';
+import { ContactPage } from './portfolio/ContactPage';
 
 export interface AppConfig {
   component: React.ComponentType<any>;
@@ -52,5 +53,11 @@ export const APP_REGISTRY: Record<string, AppConfig> = {
     title: 'hero',
     icon: '../assets/img/portfolio/windows-terminal.png' ,
     defaultMaximized: true, // This app will open maximized by default
-  }
+  },
+  "contact": {
+    component: ContactPage,
+    title: 'Contact',
+    icon: '../assets/img/portfolio/windows-terminal.png' ,
+    defaultMaximized: true, // This app will open maximized by default
+  },
 };

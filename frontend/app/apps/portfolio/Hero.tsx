@@ -25,6 +25,8 @@ interface ImmersivePortfolioHeroProps {
   // FIX: was `Array<{ label: string; href: string }>` which is missing the
   // required `section` field that PortfolioNavbar demands.
   navItems?: PortfolioNavItem[];
+  // Hide hero content when mobile menu is open
+  isMobileMenuOpen?: boolean;
 }
 
 export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
@@ -37,6 +39,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
   activeSection = 'home',
   onNavigate,
   navItems,
+  isMobileMenuOpen = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -82,11 +85,18 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
   const handleNavigate = onNavigate ?? (() => {});
 
   return (
-    <div
+    <div 
       ref={containerRef}
       className="relative w-full h-[250vh]"
     >
-      <div className="sticky top-0 h-screen w-full overflow-hidden perspective-1000">
+      <div 
+        className="sticky top-0 h-screen w-full overflow-hidden perspective-1000 z-10"
+        style={{
+          opacity: isMobileMenuOpen ? 0 : 1,
+          pointerEvents: isMobileMenuOpen ? 'none' : 'auto',
+          transition: 'opacity 0.3s ease',
+        }}
+      >
 
         <motion.div
           className="absolute inset-0 w-full h-full origin-[50%_70%]"
@@ -103,7 +113,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
             typographyName={portfolioHeroConfig.typographyName}
           />
 
-          <HeroImage
+          <HeroImage 
             isLoaded={isLoaded}
             viewportMode={viewportMode}
             theme={theme}
@@ -112,22 +122,6 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
         </motion.div>
 
         {/* UI LAYER — overlay navbar fades out as we zoom */}
-        <motion.div
-          style={{ opacity: uiOpacity }}
-          className="relative z-50 pointer-events-none"
-        >
-          <div className="pointer-events-auto">
-            {/* FIX: now passes all required PortfolioNavbar props */}
-            <PortfolioNavbar
-              theme={theme}
-              activeSection={activeSection}
-              onNavigate={handleNavigate}
-              onThemeToggle={onThemeToggle}
-              opacity={uiOpacity}
-              navItems={navItems}
-            />
-          </div>
-        </motion.div>
 
         <HeroText
           isLoaded={isLoaded}

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { usePortfolioLoader } from './hooks/usePortfolioLoader';
 import { useViewport } from './hooks/useViewport';
@@ -16,6 +16,9 @@ import { CodeManifesto } from './components/Bridge';
 import { SystemFooter } from './components/Footer';
 import { useThemeStore } from '../../state/useThemeStore';
 import { ContactPage } from './ContactPage';
+import { RevealOnScroll } from './components/RevealOnScroll';
+
+
 
 const AboutPage    = lazy(() => import('./About'));
 const ProjectsPage = lazy(() => 
@@ -78,6 +81,9 @@ export const PortfolioShell: React.FC = () => {
     v > 0.12 ? 'auto' : 'none'
   );
 
+  // Mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const handleThemeToggle = () => {
     toggleTheme();
   };
@@ -122,6 +128,8 @@ export const PortfolioShell: React.FC = () => {
             activeSection={activeSection}
             onNavigate={handleNavigate}   // ← handleNavigate, not navigate
             onThemeToggle={handleThemeToggle}
+            scrollContainer={scrollRef}
+            onMobileMenuStateChange={setIsMobileMenuOpen}
           />
         </div>
 
@@ -140,6 +148,7 @@ export const PortfolioShell: React.FC = () => {
               activeSection={activeSection}
               onNavigate={handleNavigate}   // ← handleNavigate
               onThemeToggle={handleThemeToggle}
+              isMobileMenuOpen={isMobileMenuOpen}
             />
           )}
 
@@ -189,8 +198,10 @@ interface HomeContentProps {
   activeSection: PortfolioSection;
   onNavigate: (section: PortfolioSection) => void;
   onThemeToggle: () => void;
+  isMobileMenuOpen: boolean;
 }
 
+// ─── HomeContent ──────────────────────────────────────────────────────────────
 const HomeContent: React.FC<HomeContentProps> = ({
   theme,
   viewportMode,
@@ -204,6 +215,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
   activeSection,
   onNavigate,
   onThemeToggle,
+  isMobileMenuOpen,
 }) => (
   <>
     <div className="relative z-50 w-full block">
@@ -216,6 +228,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
         onThemeToggle={onThemeToggle}
         activeSection={activeSection}
         onNavigate={onNavigate}
+        isMobileMenuOpen={isMobileMenuOpen}
       />
     </div>
 
@@ -229,35 +242,36 @@ const HomeContent: React.FC<HomeContentProps> = ({
       }}
     >
       <div className="relative z-10 bg-inherit">
-        <NextSection theme={theme} />
+        <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
+          <NextSection theme={theme} />
+        </RevealOnScroll>
 
-        <TypedLatestProjects
-          theme={theme}
-          scrollContainer={scrollRef}
-          scrollYProgress={scrollYProgress}
-          onNavigate={onNavigate}
-        />
+        <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
+          <TypedLatestProjects
+            theme={theme}
+            scrollContainer={scrollRef}
+            scrollYProgress={scrollYProgress}
+            onNavigate={onNavigate}
+          />
+        </RevealOnScroll>
 
-        <TechStack theme={theme} />
+        <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
+          <TechStack theme={theme} />
+        </RevealOnScroll>
 
-        <CodeManifesto
-          theme={theme}
-          scrollContainer={scrollRef}
-          scrollYProgress={scrollYProgress}
-        />
-
-        <TypedContactCompact
-          theme={theme}
-          scrollYProgress={scrollYProgress}
-          onViewContact={() => onNavigate('contact')}
-        />
-
-
+        <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
+          <TypedContactCompact
+            theme={theme}
+            scrollYProgress={scrollYProgress}
+            onViewContact={() => onNavigate('contact')}
+          />
+        </RevealOnScroll>
 
         <div className="h-24 w-full" />
       </div>
     </motion.main>
   </>
 );
+
 
 export default PortfolioShell;
