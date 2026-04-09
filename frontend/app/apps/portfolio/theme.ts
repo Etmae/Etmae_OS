@@ -15,7 +15,7 @@ type PortfolioThemeConfig = {
 
 const PORTFOLIO_THEME: Record<PortfolioThemeMode, PortfolioThemeConfig> = {
   dark: {
-    bg: 'bg-[#050505]',
+    bg: 'bg-[#000000]',
     text: 'text-zinc-100',
     muted: 'text-zinc-500',
     border: 'border-zinc-800',

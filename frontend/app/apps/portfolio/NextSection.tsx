@@ -85,22 +85,22 @@ const ProjectRow = ({ index, project, isDark, subTextColor, borderColor }: any) 
     >
       <div className="flex items-baseline gap-8 md:gap-16">
         <span className={`text-xs font-mono opacity-50 ${subTextColor}`}>0{index + 1}</span>
-        <h3 className="text-3xl md:text-5xl font-light tracking-tight group-hover:translate-x-4 transition-transform duration-500 ease-out">
+        <h3 className="text-3xl md:text-5xl font-light tracking-tight group-hover:translate-x-4 transition-transform duration-150 ease-out">
           {project.title}
         </h3>
       </div>
       
       <div className="flex items-center gap-8 mt-4 md:mt-0 w-full md:w-auto justify-between md:justify-end">
         <span className={`text-sm tracking-wider ${subTextColor} uppercase`}>{project.category}</span>
-        <ArrowRight className={`w-6 h-6 -rotate-45 group-hover:rotate-0 transition-transform duration-500 ${isDark ? 'text-white' : 'text-black'}`} />
+        <ArrowRight className={`w-6 h-6 -rotate-45 group-hover:rotate-0 transition-transform duration-150 ${isDark ? 'text-white' : 'text-black'}`} />
       </div>
     </motion.div>
   );
 };
 
 const projects = [
-  { title: "Lumina Interface", category: "Fintech App" },
   { title: "Vesper Architecture", category: "Web Design" },
+  { title: "Backend Engine", category: "Backend Development" },
   { title: "Apex Systems", category: "Design System" },
 ];
 

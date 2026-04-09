@@ -16,6 +16,7 @@ import { CodeManifesto } from './components/Bridge';
 import { SystemFooter } from './components/Footer';
 import { useThemeStore } from '../../state/useThemeStore';
 import { ContactPage } from './ContactPage';
+import { ProjectDetailWrapper } from './ProjectDetailWrapper';
 import { RevealOnScroll } from './components/RevealOnScroll';
 
 
@@ -39,7 +40,7 @@ type AboutPageType = React.ComponentType<{
 
 type ProjectsPageType = React.ComponentType<{
   theme: Theme;
-  onNavigate: (section: PortfolioSection) => void;
+  onNavigate: (section: PortfolioSection, projectId?: string) => void;
   scrollContainer?: React.RefObject<HTMLDivElement | null>;
 }>;
 
@@ -62,12 +63,12 @@ const TypedLatestProjects = LatestProjects as unknown as LatestProjectsType;
 const TypedContactCompact = ContactCompact as unknown as ContactCompactType;
 
 export const PortfolioShell: React.FC = () => {
-  const { loading, onVideoEnded } = usePortfolioLoader(3);
+  const { loading, onLoopComplete } = usePortfolioLoader(3);
   const viewportMode = useViewport();
   const { theme: globalTheme, toggleTheme } = useThemeStore();
   const theme = globalTheme as Theme;
 
-  const { activeSection, navigate, scrollRef } = usePortfolioNavigation();
+  const { activeSection, selectedProjectId, navigate, scrollRef } = usePortfolioNavigation();
 
   const { scrollYProgress } = useScroll({
     container: scrollRef,
@@ -95,17 +96,16 @@ export const PortfolioShell: React.FC = () => {
   // the animation starts mid-progress. By resetting synchronously here —
   // before navigate() triggers the re-render — the scroll container is already
   // at 0 when the new component's useEffect runs.
-  const handleNavigate = (section: PortfolioSection) => {
+  const handleNavigate = (section: PortfolioSection, projectId?: string) => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
-    navigate(section);
+    navigate(section, projectId);
   };
 
   return (
     <>
       <PortfolioLoader
         isLoading={loading}
-        onVideoEnded={onVideoEnded}
-        videoSrc="/app/assets/videos/portfolio-video.mp4"
+        onLoopComplete={onLoopComplete}
       />
 
       <div
@@ -133,7 +133,7 @@ export const PortfolioShell: React.FC = () => {
           />
         </div>
 
-        <Suspense fallback={<PortfolioLoader isLoading videoSrc="../../assets/videos/portfolio-video.mp4" onVideoEnded={() => {}} />}>
+        <Suspense fallback={<PortfolioLoader isLoading onLoopComplete={() => {}} />}>
           {activeSection === 'home' && (
             <HomeContent
               theme={theme}
@@ -170,6 +170,14 @@ export const PortfolioShell: React.FC = () => {
 
           {activeSection === 'contact' && (
             <ContactPage theme={theme} onNavigate={handleNavigate} />
+          )}
+
+          {activeSection === 'project-detail' && selectedProjectId && (
+            <ProjectDetailWrapper
+              projectId={selectedProjectId}
+              theme={theme}
+              onBack={() => handleNavigate('works')}
+            />
           )}
         </Suspense>
 

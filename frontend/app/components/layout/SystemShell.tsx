@@ -59,7 +59,7 @@ export const SystemShell: React.FC<SystemShellProps> = ({
       </main>
 
       {/* 3. Taskbar Layer (fixed inside Taskbar component) */}
-      <footer className="w-full shrink-0 z-50">
+      <footer className="w-full shrink-0 z-50"  >
         {!isExcluded && (
           <Taskbar 
             onLock={onLock}           

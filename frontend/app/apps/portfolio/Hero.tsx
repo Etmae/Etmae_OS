@@ -87,7 +87,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[250vh]"
+      className="relative w-full h-[280vh]"
     >
       <div 
         className="sticky top-0 h-screen w-full overflow-hidden perspective-1000 z-10"

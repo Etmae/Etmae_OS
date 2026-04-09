@@ -15,7 +15,7 @@ export const BackgroundOverlay: React.FC<BackgroundOverlayProps> = ({
   return (
     <motion.div
       style={{ opacity: finishFill }}
-      className={`absolute inset-0 z-45 pointer-events-none transition-colors duration-700 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-zinc-50'}`}
+      className={`absolute inset-0 z-45 pointer-events-none transition-colors duration-150 ${theme === 'dark' ? 'bg-[#050505]' : 'bg-zinc-50'}`}
     />
   );
 };

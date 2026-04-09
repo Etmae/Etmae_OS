@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { APP_REGISTRY } from '../apps/registry';
 
 export type WindowLayout = 'maximized' | 'snap-left' | 'snap-right' | 'snap-top' | 'snap-bottom' | 'floating';
@@ -50,11 +51,13 @@ const generateId = () => Math.random().toString(36).substring(2, 9);
 const isMobileViewport = () =>
   typeof window !== 'undefined' ? window.innerWidth < 640 : false;
 
-export const useWindowStore = create<WindowStore>((set, get) => ({
-  windows: {},
-  windowOrder: [],
+export const useWindowStore = create<WindowStore>()(
+  persist(
+    (set, get) => ({
+      windows: {},
+      windowOrder: [],
 
-openWindow: (appId, options = {}) => {
+      openWindow: (appId, options = {}) => {
   const state = get();
 
   // If a window for this app already exists, reuse it instead of creating a new one
@@ -341,4 +344,13 @@ openWindow: (appId, options = {}) => {
       }
     }));
   },
-}));
+}),
+{
+  name: 'window-store',
+  partialize: (state) => ({
+    windows: state.windows,
+    windowOrder: state.windowOrder,
+  }),
+}
+  )
+);

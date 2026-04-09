@@ -65,6 +65,16 @@ canvas, img, video {
   background: #a8a8a8;
 }
 
+/* Theme transition performance helper */
+.theme-transition-disabled *,
+.theme-transition-disabled *::before,
+.theme-transition-disabled *::after {
+  transition-property: none !important;
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
+  animation-delay: 0ms !important;
+}
+
 /* Theme variables */
 :root {
   /* Light theme colors */

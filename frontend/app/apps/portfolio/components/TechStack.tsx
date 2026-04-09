@@ -14,7 +14,7 @@ export const TechStack: React.FC<TechStackProps> = ({ theme = 'dark', scrollCont
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
 
   return (
-    <section className={`relative w-full py-24 md:py-32 px-6 md:px-12 transition-colors duration-700 ${bgClass} ${textPrimary}`}>
+    <section className={`relative w-full py-24 md:py-32 px-6 md:px-12 transition-colors duration-150 ${bgClass} ${textPrimary}`}>
       <div 
         className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-overlay"
         style={{
@@ -56,7 +56,7 @@ export const TechStack: React.FC<TechStackProps> = ({ theme = 'dark', scrollCont
               </div>
               <div>
                 <h3 className="text-xl font-medium mb-2">Frontend Engineering</h3>
-                <p className={`text-sm mb-6 ${textSecondary}`}>Sub-millisecond interaction and WebGL interfaces.</p>
+                <p className={`text-sm mb-6 ${textSecondary}`}>Sub-millisecond interaction and fluid interfaces.</p>
                 <div className="flex flex-wrap gap-2">
                   {['React 18', 'Next.js', 'TypeScript', 'Tailwind', 'Three.js', 'Framer Motion'].map(tag => (
                     <Badge key={tag} text={tag} theme={theme} />
@@ -77,7 +77,7 @@ export const TechStack: React.FC<TechStackProps> = ({ theme = 'dark', scrollCont
                </div>
                <div className="flex-1 flex content-end items-end">
                   <div className="flex flex-wrap gap-2">
-                    {['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'AWS', 'GraphQL'].map(tag => (
+                    {['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Next.js', 'Django', 'Supabase'].map(tag => (
                       <Badge key={tag} text={tag} theme={theme} />
                     ))}
                   </div>
@@ -114,7 +114,7 @@ export const TechStack: React.FC<TechStackProps> = ({ theme = 'dark', scrollCont
                 <h3 className="text-lg font-medium mb-2">Exploring</h3>
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
-                 {['Rust', 'WebAssembly', 'Solidity'].map(tag => (
+                 {['Flutter', 'ML', 'SpringBoot'].map(tag => (
                     <Badge key={tag} text={tag} theme={theme} />
                   ))}
               </div>
@@ -151,10 +151,10 @@ const SpotlightCard = ({ children, className = "", theme }: { children: React.Re
     <div
       ref={divRef}
       onMouseMove={handleMouseMove}
-      className={`relative rounded-xl border transition-colors duration-700 ${isDark ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-white'} overflow-hidden group ${className}`}
+      className={`relative rounded-xl border transition-colors duration-150 ${isDark ? 'border-zinc-800 bg-zinc-950' : 'border-zinc-200 bg-white'} overflow-hidden group ${className}`}
     >
       <motion.div
-        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
         style={{
           background: useMotionTemplate`radial-gradient(650px circle at ${position.x}px ${position.y}px, ${isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.07)'}, transparent 40%)`,
         }}

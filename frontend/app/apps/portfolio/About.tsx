@@ -96,7 +96,7 @@ const NavAvatar = ({ node, isActive, progress, onClick, isDark }: { node: any; i
           />
         )}
       </svg>
-      <div className={`relative w-10 h-10 rounded-full overflow-hidden border transition-all duration-500 
+      <div className={`relative w-10 h-10 rounded-full overflow-hidden border transition-all duration-150 
         ${isActive ? 'border-green-500 scale-110' : 'border-transparent opacity-40 grayscale group-hover:grayscale-0'}`}>
         <img src={node.avatar} alt={node.name} className="w-full h-full object-cover" />
       </div>
@@ -199,9 +199,9 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
   ];
 
   return (
-    <div className={`relative w-full ${colors.bg} transition-colors duration-700`}>
+    <div className={`relative w-full ${colors.bg} transition-colors duration-150`}>
       {/* 1. HERO ZOOM */}
-      <div style={{ height: panelHeight * 2.5 || '250vh' }} className="relative w-full">
+      <div style={{ height: panelHeight * 2.5 || '280vh' }} className="relative w-full">
         <HeroZoom scrollContainer={scrollContainer} panelHeight={panelHeight} bgClass={colors.bg} textClass={colors.text} />
       </div>
 
@@ -217,13 +217,13 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 <div className="relative">
                   {/* Tilted Image Frame */}
                   <div className="relative group">
-                    <div className="absolute -inset-4 border border-green-500/10 rounded-3xl rotate-3 group-hover:rotate-0 transition-transform duration-1000" />
+                    <div className="absolute -inset-4 border border-green-500/10 rounded-3xl rotate-3 group-hover:rotate-0 transition-transform duration-150" />
 
-                    <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl -rotate-2 group-hover:rotate-0 transition-transform duration-1000">
+                    <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl -rotate-2 group-hover:rotate-0 transition-transform duration-150">
                       <img
                         src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974"
                         alt="Elijah Olujimi"
-                        className="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000"
+                        className="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-150"
                       />
 
                       <div className="absolute top-6 right-6 p-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-full text-green-500 shadow-2xl">
@@ -240,7 +240,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                         className={`
                           flex items-center gap-4 px-5 py-4
                           ${isDark ? 'text-white/70 hover:text-white hover:bg-white/5' : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'}
-                          transition-all duration-200 group/link
+                          transition-all duration-150 group/link
                         `}
                       >
                         <span className="text-green-500 shrink-0">{icon}</span>
@@ -293,7 +293,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 </div>
 
                 <div className="mt-20 hidden lg:block">
-                  <button className={`group flex items-center gap-4 px-10 py-5 rounded-full border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-700 font-mono text-[10px] tracking-[0.3em] uppercase`}>
+                  <button className={`group flex items-center gap-4 px-10 py-5 rounded-full border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase`}>
                     <Download size={16} className="group-hover:-translate-y-1 transition-transform" />
                     Download Curriculum Vitae
                   </button>
@@ -354,14 +354,14 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
               <RevealOnScroll>
                 <div className="relative group">
                   {/* Decorative border frame */}
-                  <div className="absolute -inset-4 border border-green-500/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-1000" />
+                  <div className="absolute -inset-4 border border-green-500/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-150" />
 
                   {/* Main image */}
-                  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl rotate-2 group-hover:rotate-0 transition-transform duration-1000">
+                  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl rotate-2 group-hover:rotate-0 transition-transform duration-150">
                     <img
                       src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=2070"
                       alt="Playing an instrument"
-                      className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                      className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-150"
                     />
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-transparent" />
@@ -385,11 +385,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                     </div>
 
                     {/* Top label */}
-                    <div className="absolute top-6 left-6">
-                      <span className="bg-green-500 text-black text-[9px] font-mono font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">
-                        Multi-Instrumentalist
-                      </span>
-                    </div>
+
                   </div>
                 </div>
               </RevealOnScroll>

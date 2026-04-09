@@ -23,7 +23,7 @@ export const BackgroundTypography: React.FC<BackgroundTypographyProps> = ({
         animate={isLoaded ? { opacity: 1, y: 0 } : { opacity: 0, y: 100 }}
         transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ opacity: uiOpacity }}
-        className={`text-[22vw] font-black uppercase transition-colors duration-700 ${
+        className={`text-[22vw] font-black uppercase transition-colors duration-150 ${
           theme === 'dark' ? 'text-white/5' : 'text-black/5'
         }`}
       >

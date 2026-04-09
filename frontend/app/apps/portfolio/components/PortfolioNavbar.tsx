@@ -37,9 +37,9 @@ export interface PortfolioNavItem {
 }
 
 const DEFAULT_NAV_ITEMS: PortfolioNavItem[] = [
-  { label: "Home",    section: "home",    href: "#portfolio/home"    },
-  { label: "Work",    section: "works",   href: "#portfolio/work"    },
-  { label: "About",   section: "about",   href: "#portfolio/about"   },
+  { label: "Home", section: "home", href: "#portfolio/home" },
+  { label: "Work", section: "works", href: "#portfolio/work" },
+  { label: "About", section: "about", href: "#portfolio/about" },
   { label: "Contact", section: "contact", href: "#portfolio/contact" },
 ];
 
@@ -79,19 +79,11 @@ interface NavItemsProps {
   onItemClick: (section: PortfolioSection) => void;
 }
 
-const NavItems: React.FC<NavItemsProps> = ({
-  items,
-  activeSection,
-  theme,
-  onItemClick,
-}) => {
+const NavItems: React.FC<NavItemsProps> = ({ items, activeSection, theme, onItemClick }) => {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <motion.div
-      onMouseLeave={() => setHovered(null)}
-      className="hidden md:flex items-center gap-1"
-    >
+    <motion.div onMouseLeave={() => setHovered(null)} className="hidden md:flex items-center gap-2">
       {items.map((item) => {
         const isActive = activeSection === item.section;
         return (
@@ -103,43 +95,32 @@ const NavItems: React.FC<NavItemsProps> = ({
               onItemClick(item.section);
             }}
             onMouseEnter={() => setHovered(item.section)}
-            aria-current={isActive ? "page" : undefined}
-            className="relative px-4 py-2 rounded-full"
+            className="relative px-4 py-2 rounded-full transition-all"
           >
-            {/* Hover pill */}
-            {hovered === item.section && (
+            {/* The Hover State (Subtle) */}
+            {hovered === item.section && !isActive && (
               <motion.span
                 layoutId="nav-hover-pill"
-                className={cn(
-                  "absolute inset-0 rounded-full",
-                  theme === "dark" ? "bg-white/10" : "bg-black/5"
-                )}
+                className={cn("absolute inset-0 rounded-full", theme === "dark" ? "bg-white/5" : "bg-black/5")}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
 
-            {/* Active dot */}
+            {/* The Active State (Bold) */}
             {isActive && (
               <motion.span
-                layoutId="nav-active-dot"
-                className={cn(
-                  "absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full",
-                  theme === "dark" ? "bg-white" : "bg-black"
-                )}
+                layoutId="nav-active-pill"
+                className={cn("absolute inset-0 rounded-full shadow-sm", theme === "dark" ? "bg-green-500" : "bg-green-500")}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
 
             <span
               className={cn(
-                "relative z-10 text-[11px] uppercase tracking-[0.35em] font-bold transition-opacity duration-200",
+                "relative z-10 text-[10px] uppercase tracking-[0.3em] font-bold transition-colors duration-300",
                 isActive
-                  ? theme === "dark"
-                    ? "text-white opacity-100"
-                    : "text-black opacity-100"
-                  : theme === "dark"
-                  ? "text-white opacity-50 hover:opacity-80"
-                  : "text-black opacity-40 hover:opacity-70"
+                  ? theme === "dark" ? "text-black" : "text-white"
+                  : theme === "dark" ? "text-white/50 hover:text-white" : "text-black/40 hover:text-black"
               )}
             >
               {item.label}
@@ -164,7 +145,7 @@ const ThemeToggle: React.FC<{
     onClick={onToggle}
     className={cn(
       // FIX 3: shrink-0 ensures this button never gets squeezed out of the pill
-      "hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-200 shrink-0",
+      "hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-150 shrink-0",
       theme === "dark"
         ? "text-white hover:bg-white/10"
         : "text-black hover:bg-black/5",
@@ -197,9 +178,9 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
   onThemeToggle,
   opacity,
   scrollContainer,
-  darkLogo  = "/app/assets/img/portfolio/dark_logo.png",
+  darkLogo = "/app/assets/img/portfolio/dark_logo.png",
   lightLogo = "/app/assets/img/portfolio/light_logo.png",
-  navItems  = DEFAULT_NAV_ITEMS,
+  navItems = DEFAULT_NAV_ITEMS,
   className = "",
   onMobileMenuStateChange,
 }) => {
@@ -226,8 +207,8 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
   //   - Desktop: 100% → clamp(520px, 60%, 100%)  (520px is the minimum that
   //     comfortably fits logo ~56px + 4 links ~280px + toggle ~36px + padding)
   // navY and navRadius are unchanged — the animation feel is identical.
-  const navWidth  = useTransform(scrollY, [0, 120], ["100%", "clamp(520px, 60%, 100%)"]);
-  const navY      = useTransform(scrollY, [0, 120], [0, 16]);
+  const navWidth = useTransform(scrollY, [0, 120], ["100%", "clamp(520px, 60%, 100%)"]);
+  const navY = useTransform(scrollY, [0, 120], [0, 16]);
   const navRadius = useTransform(scrollY, [0, 120], [0, 40]);
 
   // ── Mobile menu state ───────────────────────────────────────────────────
@@ -254,16 +235,16 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
 
   // ── Mobile StaggeredMenu items ───────────────────────────────────────────
   const menuItems: StaggeredMenuItem[] = navItems.map((item) => ({
-    label:     item.label,
+    label: item.label,
     ariaLabel: item.label,
-    link:      item.href ?? `#portfolio/${item.section}`,
-    data:      item.section,
+    link: item.href ?? `#portfolio/${item.section}`,
+    data: item.section,
   }));
 
   const socialItems: StaggeredMenuSocialItem[] = [
-    { label: "GitHub",   link: "#", icon: <Github size={18} />,   ariaLabel: "Visit GitHub profile"   },
+    { label: "GitHub", link: "#", icon: <Github size={18} />, ariaLabel: "Visit GitHub profile" },
     { label: "LinkedIn", link: "#", icon: <Linkedin size={18} />, ariaLabel: "Visit LinkedIn profile" },
-    { label: "Twitter",  link: "#", icon: <Twitter size={18} />,  ariaLabel: "Visit Twitter profile"  },
+    { label: "Twitter", link: "#", icon: <Twitter size={18} />, ariaLabel: "Visit Twitter profile" },
   ];
 
   const handleMobileItemClick = useCallback(
@@ -281,7 +262,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
   const menuLogoSrc = lightLogo;
 
   // ── Colors based on theme ────────────────────────────────────────────────
-  const glassColor  = theme === "dark"
+  const glassColor = theme === "dark"
     ? "bg-black/60  border-white/10"
     : "bg-white/70  border-black/8";
 
@@ -306,8 +287,8 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
         {/* ── Aceternity-style animated pill ── */}
         <motion.div
           style={{
-            width:        navWidth,
-            y:            navY,
+            width: navWidth,
+            y: navY,
             borderRadius: navRadius,
           }}
           animate={{
@@ -322,7 +303,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
           className={cn(
             // FIX 3: min-w-0 prevents flex children from overflowing the pill.
             // Without it, a flexbox row can exceed its container's width.
-            "relative flex items-center justify-between px-6 md:px-10 py-4 transition-colors duration-300 min-w-0",
+            "relative flex items-center justify-between px-6 md:px-10 py-4 transition-colors duration-150 min-w-0",
             scrolled ? glassColor + " border" : "bg-transparent border-transparent"
           )}
         >
@@ -330,7 +311,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
           <button
             onClick={() => handleNavClick("home")}
             className={cn(
-              "relative z-50 transition-opacity duration-300 shrink-0",
+              "relative z-50 transition-opacity duration-150 shrink-0",
               isMenuOpen ? "opacity-0 pointer-events-none" : "opacity-100"
             )}
             aria-label="Go to home"
@@ -372,7 +353,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
                   onMobileMenuStateChange?.(newState);
                 }}
                 className={cn(
-                  "md:hidden flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-200",
+                  "md:hidden flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-150",
                   theme === "dark"
                     ? "text-white hover:bg-white/10"
                     : "text-black hover:bg-black/5"
@@ -418,7 +399,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
           externalOpen drives open/close from the pill hamburger above.
           isFixed=true so the panel covers the full screen correctly. */}
       {isMobile && (
-        <div className="fixed inset-0 z-[60] pointer-events-none">
+        <div className="fixed inset-0 z-60 pointer-events-none">
           <StaggeredMenu
             position="right"
             items={menuItems}

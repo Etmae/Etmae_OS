@@ -29,7 +29,7 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
   const bgClass = isDark ? 'bg-[#050505]' : 'bg-white';
 
   return (
-    <footer className={`w-full py-12 px-6 md:px-12 border-t transition-colors duration-700 ${borderClass} ${bgClass}`}>
+    <footer className={`w-full py-12 px-6 md:px-12 border-t transition-colors duration-150 ${borderClass} ${bgClass}`}>
       <div className="max-w-7xl mx-auto">
         
         {/* Top Row: Terminal Readout */}

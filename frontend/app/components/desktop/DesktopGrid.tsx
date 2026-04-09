@@ -26,6 +26,7 @@ export const DesktopGrid: React.FC<DesktopGridProps> = ({
     { x: 0, y: 620 },
     { x: 100, y: 20 },
     { x: 100, y: 120 },
+    { x: 100, y: 220 },
   ])
 
   const updateIconPosition = useCallback((index: number, position: Position) => {

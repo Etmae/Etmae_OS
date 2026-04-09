@@ -1,16 +1,16 @@
 
 
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { motion, useTransform, MotionValue } from 'framer-motion';
 import { Mail, MessageSquare, ArrowRight, Github, Twitter, Linkedin } from 'lucide-react';
-import {useNavigate} from 'react-router-dom';
 
 interface ContactProps {
   theme?: 'dark' | 'light';
   scrollYProgress: MotionValue<number>;
+  onViewContact: () => void;
 }
 
-export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollYProgress }) => {
+export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollYProgress, onViewContact }) => {
   const isDark = theme === 'dark';
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -23,9 +23,9 @@ export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollY
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
   const accentColor = isDark ? 'bg-zinc-100 text-black' : 'bg-black text-white';
 
-
-
-  const navigate = useNavigate();
+  const handleViewContact = useCallback(() => {
+    onViewContact();
+  }, [onViewContact]);
 
   return (
     <section 
@@ -65,20 +65,22 @@ export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollY
         </h2>
 
         {/* Magnetic-style CTA Button */}
-        <motion.div
-          onClick={() => navigate("/fullcontact")}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className={`group relative flex items-center gap-4 px-10 py-6 rounded-full text-xl font-medium transition-all duration-300 ${accentColor}`}
+        <button
+          type="button"
+          onClick={handleViewContact}
+          className="group relative rounded-full"
         >
-          <span
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`relative flex items-center gap-4 px-10 py-6 rounded-full text-xl font-medium transition-all duration-150 ${accentColor}`}
           >
-            Hit me up
-            </span>
-          <div className="bg-green-500 rounded-full p-1 group-hover:-rotate-45 transition-transform duration-300">
-            <ArrowRight className="w-6 h-6 text-white" />
-          </div>
-        </motion.div>
+            <span>Hit me up</span>
+            <div className="bg-green-500 rounded-full p-1 group-hover:-rotate-45 transition-transform duration-150">
+              <ArrowRight className="w-6 h-6 text-white" />
+            </div>
+          </motion.div>
+        </button>
 
         {/* Simple Footer Links */}
         <div className="mt-24 w-full pt-12 border-t border-zinc-800/20 flex flex-col md:flex-row justify-between items-center gap-8">
@@ -105,7 +107,7 @@ const SocialLink = ({ href, icon, label, theme }: { href: string, icon: React.Re
       className={`group flex items-center gap-2 transition-colors ${isDark ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-black'}`}
     >
       {icon}
-      <span className="text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+      <span className="text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         {label}
       </span>
     </a>

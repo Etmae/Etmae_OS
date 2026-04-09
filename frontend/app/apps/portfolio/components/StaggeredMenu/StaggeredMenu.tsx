@@ -589,7 +589,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label={s.ariaLabel ?? s.label}
-                        className="sm-socials-link text-[1.2rem] font-medium text-[#111] no-underline relative inline-flex items-center gap-2 py-[2px] transition-[color,opacity] duration-300 ease-linear"
+                        className="sm-socials-link text-[1.2rem] font-medium text-[#111] no-underline relative inline-flex items-center gap-2 py-[2px] transition-[color,opacity] duration-150 ease-linear"
                       >
                         {s.icon && <span className="inline-flex items-center justify-center">{s.icon}</span>}
                         <span>{s.label}</span>

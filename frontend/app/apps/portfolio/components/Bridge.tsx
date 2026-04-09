@@ -22,7 +22,7 @@ export const CodeManifesto: React.FC<PrincipleProps> = ({ theme = 'dark', scroll
   return (
     <section 
       ref={containerRef} 
-      className={`relative w-full py-32 md:py-48 overflow-hidden transition-colors duration-700 ${bgClass}`}
+      className={`relative w-full py-32 md:py-48 overflow-hidden transition-colors duration-150 ${bgClass}`}
     >
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         
@@ -77,7 +77,7 @@ export const CodeManifesto: React.FC<PrincipleProps> = ({ theme = 'dark', scroll
 
       {/* Background Decorative Grid */}
       <div 
-        className={`absolute inset-0 z-0 opacity-[0.05] pointer-events-none transition-opacity duration-700`}
+        className={`absolute inset-0 z-0 opacity-[0.05] pointer-events-none transition-opacity duration-150`}
         style={{ 
           backgroundImage: `radial-gradient(${isDark ? '#fff' : '#000'} 1px, transparent 1px)`, 
           backgroundSize: '40px 40px' 
@@ -106,7 +106,7 @@ const ManifestoRow: React.FC<RowProps> = ({ progress, range, outlineText, filled
     <div className="relative group">
       <div className="relative z-10">
         {/* Background Outlined Text */}
-        <h2 className={`text-6xl md:text-9xl font-black tracking-tighter leading-none select-none transition-colors duration-500 ${baseText}`}
+        <h2 className={`text-6xl md:text-9xl font-black tracking-tighter leading-none select-none transition-colors duration-150 ${baseText}`}
             style={{ WebkitTextStroke: '1px currentColor', color: 'transparent' }}>
           {outlineText}
         </h2>

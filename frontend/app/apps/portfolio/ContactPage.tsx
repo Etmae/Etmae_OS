@@ -59,11 +59,11 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   theme = 'dark',
   onNavigate,
 }) => {
-  const [step, setStep]               = useState(0);
-  const [isLoading, setIsLoading]     = useState(false);
+  const [step, setStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [fileError, setFileError]     = useState<string | null>(null);
-  const [data, setData]               = useState<ContactFormData>(INITIAL_DATA);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [data, setData] = useState<ContactFormData>(INITIAL_DATA);
 
   // Stores the submitter's name separately so the success screen still has it
   // even after form data is reset on successful submission.
@@ -150,10 +150,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
     try {
       const formData = new FormData();
-      formData.append('name',    data.name);
-      formData.append('email',   data.email);
+      formData.append('name', data.name);
+      formData.append('email', data.email);
       formData.append('service', data.service);
-      formData.append('budget',  data.budget);
+      formData.append('budget', data.budget);
       formData.append('message', data.message);
       if (data.file) formData.append('file', data.file);
 
@@ -192,44 +192,45 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`h-dvh w-full flex flex-col justify-between px-4 pt-12 pb-24 md:px-12 md:pt-16 md:pb-32 ${colors.bg} relative overflow-hidden selection:bg-green-500/30 transition-colors duration-500`}
+      className={`h-dvh w-full flex flex-col justify-between px-4 pt-12 pb-24 md:px-12 md:pt-16 md:pb-32 ${colors.bg} relative overflow-hidden selection:bg-green-500/30 transition-colors duration-150`}
     >
+      
       {/* ── Side navigation ─────────────────────────────────────────────── */}
       {step < 5 && (
         <>
-          <div className="absolute left-4 md:left-12 top-1/2 -translate-y-1/2 z-20">
+          {/* Back Arrow: Moved closer to center (left-28% vs 20%) and higher (top-65% vs 72%) on mobile */}
+          <div className="absolute left-[28%] md:left-20 top-[65%] md:top-1/2 -translate-y-1/2 z-20">
             <button
               onClick={() =>
                 step === 0 ? onNavigate('home') : handlePrev()
               }
-              className={`p-4 md:p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-300 group`}
+              className={`p-4 md:p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}
             >
               <ArrowLeft
                 size={28}
                 strokeWidth={1}
-                className="group-hover:-translate-x-2 transition-transform duration-300"
+                className="group-hover:-translate-x-2 transition-transform duration-150"
               />
             </button>
           </div>
 
-          {/* Forward arrow only for text-input steps */}
+          {/* Forward arrow: Moved closer to center (right-28% vs 20%) and higher (top-65% vs 72%) on mobile */}
           {(step === 0 || step === 2) && (
-            <div className="absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-20">
+            <div className="absolute right-[28%] md:right-12 top-[65%] md:top-1/2 -translate-y-1/2 z-20">
               <button
                 disabled={!canProgress()}
                 onClick={handleNext}
-                className={`p-4 md:p-6 rounded-full transition-all duration-300 group ${
-                  canProgress()
+                className={`p-4 md:p-6 rounded-full transition-all duration-150 group ${canProgress()
                     ? `${colors.accent}`
                     : `opacity-30 cursor-not-allowed ${colors.muted}`
-                }`}
+                  }`}
               >
                 <ArrowRight
                   size={28}
                   strokeWidth={1}
                   className={
                     canProgress()
-                      ? 'group-hover:translate-x-2 transition-transform duration-300'
+                      ? 'group-hover:translate-x-2 transition-transform duration-150'
                       : ''
                   }
                 />
@@ -255,19 +256,19 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             className="w-full max-w-3xl flex flex-col items-center text-center px-4"
           >
             <div
-              className={`text-[10px] font-mono uppercase tracking-[0.3em] ${colors.muted} mb-8`}
+              className={`text-[10px] font-mono uppercase tracking-[0.3em] ${colors.muted} mb-6 md:mb-8`}
             >
-              {step < 5 ? `Step 0${step + 1} — 05` : 'Finalized'}
+              {step < 5 ? `Step 0${step + 1} ` : 'Finalized'}
             </div>
 
             {/* ── Step 0 · Name ─────────────────────────────────────────── */}
             {step === 0 && (
-              <div className="space-y-10 w-full">
+              <div className="space-y-8 md:space-y-10 w-full">
                 <h2
-                  className={`text-5xl md:text-8xl font-light tracking-tight ${colors.text}`}
+                  className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}
                 >
                   What is your{' '}
-                  <span className="italic font-serif">name?</span>
+                  <span className="italic font-serif text-green-500">name?</span>
                 </h2>
                 <input
                   autoFocus
@@ -280,16 +281,16 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     e.key === 'Enter' && canProgress() && handleNext()
                   }
                   placeholder="Type here..."
-                  className={`w-full ${colors.inputBg} border-b ${colors.border} pb-4 text-3xl md:text-4xl text-center outline-none focus:border-green-500 transition-all ${colors.text} placeholder:opacity-20`}
+                  className={`w-full ${colors.inputBg} border-b ${colors.border} pb-3 md:pb-4 text-2xl md:text-4xl text-center outline-none focus:border-green-500 transition-all ${colors.text} placeholder:opacity-20`}
                 />
               </div>
             )}
 
             {/* ── Step 1 · Service ──────────────────────────────────────── */}
             {step === 1 && (
-              <div className="space-y-12 w-full">
+              <div className="space-y-8 md:space-y-12 w-full">
                 <h2
-                  className={`text-4xl md:text-7xl font-light tracking-tight ${colors.text}`}
+                  className={`text-3xl md:text-7xl font-light tracking-tight ${colors.text}`}
                 >
                   What's up,{' '}
                   <span className="text-green-500 italic font-serif">
@@ -299,7 +300,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   What are we{' '}
                   <span className="italic font-serif">building?</span>
                 </h2>
-                <div className="flex flex-wrap justify-center gap-3 w-full">
+                <div className="flex flex-wrap justify-center gap-2 md:gap-3 w-full">
                   {['Frontend', 'Web Systems', 'Backend', 'Full-Stack', 'DB DESIGN'].map(
                     (s) => (
                       <button
@@ -308,11 +309,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                           setData((prev) => ({ ...prev, service: s }));
                           safeSetStep((prev) => prev + 1);
                         }}
-                        className={`px-8 py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${
-                          data.service === s
+                        className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${data.service === s
                             ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
                             : `${colors.border} ${colors.muted}`
-                        }`}
+                          }`}
                       >
                         {s}
                       </button>
@@ -324,9 +324,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
             {/* ── Step 2 · Message ──────────────────────────────────────── */}
             {step === 2 && (
-              <div className="space-y-8 w-full">
+              <div className="space-y-6 md:space-y-8 w-full">
                 <h2
-                  className={`text-4xl md:text-6xl font-light tracking-tight ${colors.text}`}
+                  className={`text-3xl md:text-6xl font-light tracking-tight ${colors.text}`}
                 >
                   Tell me about the{' '}
                   <span className="italic font-serif text-green-500">
@@ -334,7 +334,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   </span>
                 </h2>
                 <div
-                  className={`w-full border ${colors.border} ${colors.cardBg} rounded-2xl p-6 relative transition-colors focus-within:border-green-500 shadow-sm`}
+                  className={`w-full border ${colors.border} ${colors.cardBg} rounded-2xl p-4 md:p-6 relative transition-colors focus-within:border-green-500 shadow-sm`}
                 >
                   <textarea
                     autoFocus
@@ -343,15 +343,15 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       setData((prev) => ({ ...prev, message: e.target.value }))
                     }
                     placeholder="Briefly describe your vision..."
-                    className={`w-full ${colors.inputBg} border-none text-xl outline-none resize-none h-40 leading-relaxed font-light ${colors.text} placeholder:opacity-30`}
+                    className={`w-full ${colors.inputBg} border-none text-lg md:text-xl outline-none resize-none h-32 md:h-40 leading-relaxed font-light ${colors.text} placeholder:opacity-30`}
                   />
                   <div
-                    className={`flex justify-between items-center mt-4 pt-4 border-t ${colors.border}`}
+                    className={`flex justify-between items-center mt-3 md:mt-4 pt-3 md:pt-4 border-t ${colors.border}`}
                   >
                     {data.file ? (
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] uppercase tracking-widest ${colors.muted} truncate max-w-[180px]`}
+                          className={`text-[10px] uppercase tracking-widest ${colors.muted} truncate max-w-[120px] md:max-w-[180px]`}
                         >
                           {data.file.name}
                         </span>
@@ -393,14 +393,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
             {/* ── Step 3 · Budget ───────────────────────────────────────── */}
             {step === 3 && (
-              <div className="space-y-12 w-full">
+              <div className="space-y-8 md:space-y-12 w-full">
                 <h2
-                  className={`text-5xl md:text-7xl font-light tracking-tight ${colors.text}`}
+                  className={`text-4xl md:text-7xl font-light tracking-tight ${colors.text}`}
                 >
                   How should we{' '}
                   <span className="italic font-serif">scale this?</span>
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 w-full">
                   {['$5k+', '$10k+', '$25k+', '$50k+', 'Enterprise', 'TBD'].map(
                     (b) => (
                       <button
@@ -409,11 +409,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                           setData((prev) => ({ ...prev, budget: b }));
                           safeSetStep((prev) => prev + 1);
                         }}
-                        className={`px-6 py-5 border ${colors.border} text-[10px] font-mono uppercase tracking-widest hover:border-green-500 transition-all rounded-sm ${
-                          data.budget === b
+                        className={`px-3 py-4 md:px-6 md:py-5 border ${colors.border} text-[10px] font-mono uppercase tracking-widest hover:border-green-500 transition-all rounded-sm ${data.budget === b
                             ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
                             : colors.text
-                        }`}
+                          }`}
                       >
                         {b}
                       </button>
@@ -425,9 +424,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
             {/* ── Step 4 · Email + Submit ───────────────────────────────── */}
             {step === 4 && (
-              <div className="space-y-10 w-full">
+              <div className="space-y-8 md:space-y-10 w-full">
                 <h2
-                  className={`text-5xl md:text-8xl font-light tracking-tight ${colors.text}`}
+                  className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}
                 >
                   Where can I{' '}
                   <span className="italic font-serif">reach you?</span>
@@ -450,7 +449,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     }
                   }}
                   placeholder="email@example.com"
-                  className={`w-full ${colors.inputBg} border-b ${colors.border} pb-4 text-3xl md:text-4xl text-center outline-none focus:border-green-500 transition-all ${colors.text} placeholder:opacity-20`}
+                  className={`w-full ${colors.inputBg} border-b ${colors.border} pb-3 md:pb-4 text-2xl md:text-4xl text-center outline-none focus:border-green-500 transition-all ${colors.text} placeholder:opacity-20`}
                 />
                 <AnimatePresence>
                   {submitError && (
@@ -473,7 +472,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       <button
                         onClick={handleSubmit}
                         disabled={isLoading}
-                        className="mt-12 px-12 py-5 rounded-full bg-green-500 text-black text-[11px] font-black uppercase tracking-[0.4em] hover:scale-105 transition-all shadow-[0_20px_40px_rgba(34,197,94,0.2)] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3 mx-auto"
+                        className="mt-8 md:mt-12 px-8 py-4 md:px-12 md:py-5 rounded-full bg-green-500 text-black text-[11px] font-black uppercase tracking-[0.4em] hover:scale-105 transition-all shadow-[0_20px_40px_rgba(34,197,94,0.2)] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-3 mx-auto"
                       >
                         {isLoading ? (
                           <>
@@ -507,25 +506,13 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       </main>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="w-full max-w-3xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col gap-1 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-2 text-[10px] font-mono uppercase tracking-widest text-green-500">
-              <Globe size={12} />
-              <span>Ibadan, NG // GMT+1</span>
-            </div>
-            <span
-              className={`text-[9px] font-mono uppercase tracking-widest ${colors.muted}`}
-            >
-              Lat: 7.3775° N, Long: 3.9470° E
-            </span>
-          </div>
-        </div>
-        <div className="flex gap-8">
+      <footer className="w-full max-w-3xl mx-auto px-4 flex flex-col md:flex-row justify-center items-center  relative z-10 pb-22">
+
+      <div className="flex gap-20 md:gap-50">
           {(
             [
-              [Twitter,  'https://twitter.com/'],
-              [Github,   'https://github.com/'],
+              [Twitter, 'https://twitter.com/'],
+              [Github, 'https://github.com/'],
               [Linkedin, 'https://linkedin.com/in/'],
             ] as const
           ).map(([Icon, href], i) => (

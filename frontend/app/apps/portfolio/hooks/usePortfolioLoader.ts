@@ -7,18 +7,17 @@ export const usePortfolioLoader = (loopTarget: number = 3) => {
     }
     return true;
   });
+  
   const [currentLoop, setCurrentLoop] = useState(1);
 
-  const onVideoEnded = useCallback((video: HTMLVideoElement) => {
+  const onLoopComplete = useCallback(() => {
     if (currentLoop < loopTarget) {
       setCurrentLoop(prev => prev + 1);
-      video.currentTime = 0;
-      video.play().catch(() => {});
     } else {
       sessionStorage.setItem('portfolio_intro_seen', 'true');
       setLoading(false);
     }
   }, [currentLoop, loopTarget]);
 
-  return { loading, onVideoEnded };
+  return { loading, onLoopComplete, currentLoop };
 };
