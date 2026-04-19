@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/libs/supabase/server";
 import { corsHeaders, handleCors } from "@/libs/cors";
 
+
+
 // ─── Shared constants ────────────────────────────────────────────────────────
 
 const ALLOWED_MIME_TYPES = [
@@ -63,6 +65,7 @@ function bad(message: string, status = 400) {
 }
 
 // ─── Route handlers ──────────────────────────────────────────────────────────
+
 
 export async function OPTIONS() {
   return handleCors();

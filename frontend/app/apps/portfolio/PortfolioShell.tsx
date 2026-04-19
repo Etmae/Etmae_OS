@@ -18,6 +18,7 @@ import { useThemeStore } from '../../state/useThemeStore';
 import { ContactPage } from './ContactPage';
 import { ProjectDetailWrapper } from './ProjectDetailWrapper';
 import { RevealOnScroll } from './components/RevealOnScroll';
+import HeroOrb from './components/AIOrb';
 
 
 
@@ -118,6 +119,18 @@ export const PortfolioShell: React.FC = () => {
           pointerEvents: loading ? 'none' : 'auto',
         }}
       >
+       {/* AI INTELLIGENCE TRIGGER DOCK
+            Handles responsive positioning and constraints for the HeroOrb.
+        */}
+        <div 
+          className="fixed z-[999] pointer-events-auto
+                     bottom-6 right-6     /* Mobile: Standard corner offset */
+                     md:bottom-12 md:right-12 /* Desktop: Elegant breathing room */
+                     w-16 h-16            /* Base size */
+                     md:w-20 md:h-20      /* Responsive scaling */"
+        >
+          <HeroOrb onNavigate={handleNavigate} />
+        </div>
         {/* Sticky Navbar — lives inside scrollRef, so heroTrackRef in child
             pages starts at offsetTop ≈ navbarHeight. AboutPage's raw scroll
             listener uses scrollTop directly (not Framer Motion's offset-based

@@ -42,7 +42,7 @@ export const SystemShell: React.FC<SystemShellProps> = ({
         className={`relative w-full z-10 transition-all duration-300 ${
           isExcluded 
             ? 'h-full overflow-hidden' // Full screen for Lockscreen/Signin
-            : 'flex-1 overflow-y-auto overflow-x-hidden pb-12' // Desktop workspace with room for taskbar
+            : 'flex-1 overflow-hidden pb-12' // Desktop workspace should not scroll; windows handle their own scrolling
         }`}
       >
         {React.Children.map(children, child => {

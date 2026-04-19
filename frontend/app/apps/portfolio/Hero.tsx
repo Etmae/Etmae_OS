@@ -10,6 +10,7 @@ import { HeroText } from './components/HeroText';
 import { BackgroundOverlay } from './components/BackgroundOverlay';
 import type { PortfolioSection } from './hooks/useNavigation';
 
+
 interface ImmersivePortfolioHeroProps {
   scrollContainer: React.RefObject<HTMLDivElement | null>;
   scrollYProgress: MotionValue<number>;
@@ -82,14 +83,14 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
 
   // FIX: provide a no-op fallback so onNavigate is always callable without
   // optional-chaining at every call site inside PortfolioNavbar.
-  const handleNavigate = onNavigate ?? (() => {});
+  const handleNavigate = onNavigate ?? (() => { });
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative w-full h-[280vh]"
     >
-      <div 
+      <div
         className="sticky top-0 h-screen w-full overflow-hidden perspective-1000 z-10"
         style={{
           opacity: isMobileMenuOpen ? 0 : 1,
@@ -113,7 +114,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
             typographyName={portfolioHeroConfig.typographyName}
           />
 
-          <HeroImage 
+          <HeroImage
             isLoaded={isLoaded}
             viewportMode={viewportMode}
             theme={theme}

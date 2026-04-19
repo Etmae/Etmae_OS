@@ -29,4 +29,5 @@ export const desktopIcons: DesktopIconData[] = [
   { appId: 'chrome', icon: <ChromeIcon width={32} height={32} />, label: 'Google Chrome' },
   { appId: 'vscode', icon: <VSCodeIcon width={32} height={32} />, label: 'VS Code' },
   { appId: 'explorer', icon: <ExplorerIcon width={32} height={32} />, label: 'File Explorer' },
+  {appId: 'assistant', icon: <PortIcon width={32} height={32} />, label: 'Etmae AI Assistant' },
 ];

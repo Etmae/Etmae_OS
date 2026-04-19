@@ -148,9 +148,20 @@ const Taskbar: React.FC<TaskbarProps> = ({ onLock, onRestart, onShutdown }) => {
     .map((appId) => {
       const config = APP_REGISTRY[appId];
       const iconNode = config?.icon
-        ? // Registry icon is a string path – render as img
-          (<img src={config.icon} alt={config.title} className="w-8 h-8 object-contain" />)
-        : null;
+      ? typeof config.icon === 'string'
+        ? (
+            <img
+              src={config.icon}
+              alt={config.title}
+              className="w-6 h-6 object-contain"
+            />
+          )
+        : React.isValidElement(config.icon)
+        ? config.icon
+        : typeof config.icon === 'function'
+        ? React.createElement(config.icon, { size: 20 })
+        : null
+      : null;
       return {
         appId,
         label: config?.title ?? appId,

@@ -1,4 +1,5 @@
 // app/apps/registry.ts
+import React from 'react';
 import { Terminal } from './terminal/Terminal';
 // import { Notepad } from './notepad/Notepad';
 import  Paint from './paint/Paint';
@@ -9,11 +10,13 @@ import { User, FolderOpen, Mail, FileText, Component } from 'lucide-react';
 import { ContactPage } from './portfolio/ContactPage';
 import { AboutPage } from './portfolio/About';
 import { WorksPage } from './portfolio/Works';
+import Assistant from './assistant/Assistant';
+import AssistantIcon from '../assets/img/portfolio/EtmaeImg.png';
 
 export interface AppConfig {
   component: React.ComponentType<any>;
   title: string;
-  icon?: string;
+  icon?: string | React.ReactNode;
   isMaximized?: boolean;
   defaultMaximized?: boolean; // New property to indicate if the app should open maximized by default
   
@@ -42,6 +45,13 @@ export const APP_REGISTRY: Record<string, AppConfig> = {
     title: 'Portfolio Hero',
     icon: '../assets/img/portfolio/windows-terminal.png',
   },
+    assistant: {
+    component: Assistant,
+    title: 'Etmae AI',
+    icon: AssistantIcon,
+    defaultMaximized: true, // This app will open maximized by default
+  },
+  
   "portfolio": {
     component: PortfolioShell,
     title: ' My Portfolio',

@@ -11,41 +11,70 @@ import {
   ExternalLink, Plus, Users, Download, ShieldCheck, Github, Linkedin, Twitter, Instagram, Mail
 } from 'lucide-react';
 import { RevealOnScroll } from './components/RevealOnScroll';
+// Image imports
+import Cyberleo from '../../assets/img/portfolio/Cyberleo.png';
+import Adegboola from '../../assets/img/portfolio/Adegboola.png';
+
+type CircleNode =
+  | {
+    id: number;
+    name: string;
+    role: string;
+    link: string;
+    video: string;
+    image?: never;
+    avatar: string;
+  
+    bio: string;
+    work: string;
+    tags: string[];
+  }
+  | {
+    id: number;
+    name: string;
+    role: string;
+    link: string;
+    image: string;
+    video?: never;
+    avatar: string;
+
+    bio: string;
+    work: string;
+    tags: string[];
+  };
 
 // --- Data ---
-const circleNodes = [
+const circleNodes: CircleNode[] = [
   {
     id: 0,
-    name: "Serhii Kirkin",
-    role: "UI/UX Architect",
-    link: "https://portfolio.serhii.com",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    avatar: "https://i.pravatar.cc/150?u=serhii",
-    tagline: "The 'Keep Building' Crooner",
-    bio: "Architecting visual systems where every pixel has a purpose. If it's not intuitive, it's not finished.",
-    work: "Visual Logic / System Design",
-    tags: ["#SystemDesign", "#LegoLogic"]
+    name: "Adegboola Micheal",
+    role: "Blockchain Dev",
+    link: "https://www.linkedin.com/in/michael-adegbola-510aa6318?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    image: Adegboola,
+    avatar: Adegboola,
+    bio: "Writing smart contracts that are actually smart. Obsessed with trustless systems and zero-knowledge proofs.",
+    work: "Blockchain / Backend",
+    tags: ["#Cryptocurrency", "#SmartContracts"]
   },
   {
     id: 1,
-    name: "Alex Rivera",
-    role: "Blockchain Dev",
-    link: "https://github.com/alex-rivera",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    avatar: "https://i.pravatar.cc/150?u=alex",
-    tagline: "The Gas Fee Whisperer",
+    name: "AbdulAzeez Hibullahi CN",
+    role: "Certified Network Pentester and Security Researcher",
+    link: "https://linkedin.com/in/cyb3rle0",
+    image: Cyberleo,
+    avatar: Cyberleo,
     bio: "Writing smart contracts that are actually smart. Obsessed with trustless systems and zero-knowledge proofs.",
-    work: "Rust / Solidity / Cryptography",
-    tags: ["#Web3", "#Solidity"]
+    work: "Linux/ Bug Bounty Hunting / Security",
+    tags: ["#KaliLinux", "#CTF"]
   },
   {
     id: 2,
     name: "Jordan T.",
     role: "Backend Architect",
     link: "https://linkedin.com/in/jordan-t",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    video: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
     avatar: "https://i.pravatar.cc/150?u=jordan",
-    tagline: "The Memory Leak Exorcist",
+
     bio: "Concurrency is a symphony, and I'm the conductor. Ensuring high-availability for the heaviest stacks.",
     work: "Distributed Systems / Go",
     tags: ["#Concurrency", "#GoLang"]
@@ -55,9 +84,9 @@ const circleNodes = [
     name: "Taylor Chen",
     role: "Product Designer",
     link: "https://dribbble.com/taylor-chen",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    image: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?q=80&w=2070",
     avatar: "https://i.pravatar.cc/150?u=taylor",
-    tagline: "The Pixel Perfectionist",
+
     bio: "Designing experiences that feel as good as they look.",
     work: "Product Design / UX",
     tags: ["#Design", "#UX"]
@@ -67,9 +96,9 @@ const circleNodes = [
     name: "Marcus Lee",
     role: "DevOps Engineer",
     link: "https://linkedin.com/in/marcus-lee",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    video: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
     avatar: "https://i.pravatar.cc/150?u=marcus",
-    tagline: "The Deployment Whisperer",
+
     bio: "Automating everything that moves—and fixing what breaks.",
     work: "CI/CD / Cloud Infrastructure",
     tags: ["#DevOps", "#Cloud"]
@@ -149,17 +178,6 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
   const [direction, setDirection] = useState(1);
   const [panelHeight, setPanelHeight] = useState(0);
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const tiltX = useSpring(useTransform(mouseY, [-300, 300], [10, -10]), { stiffness: 100, damping: 20 });
-  const tiltY = useSpring(useTransform(mouseX, [-300, 300], [-10, 10]), { stiffness: 100, damping: 20 });
-
-  const handleMouseMove = (e: { currentTarget: { getBoundingClientRect: () => any; }; clientX: number; clientY: number; }) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.set(e.clientX - (rect.left + rect.width / 2));
-    mouseY.set(e.clientY - (rect.top + rect.height / 2));
-  };
-
   useEffect(() => {
     const h = scrollContainer?.current ? scrollContainer.current.clientHeight : window.innerHeight;
     setPanelHeight(h);
@@ -170,7 +188,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
           handleManualNav((activeIndex + 1) % circleNodes.length, 1);
           return 0;
         }
-        return prev + 0.35;
+        return prev + 0.4;
       });
     }, 30);
     return () => clearInterval(timer);
@@ -269,7 +287,6 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
               </RevealOnScroll>
             </div>
 
-            {/* RIGHT: Text Content */}
             {/* RIGHT: Text Content */}
             <div className="lg:col-span-7 order-2 lg:order-2">
               <RevealOnScroll>
@@ -395,11 +412,11 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
         </section>
 
         {/* 4. MY CIRCLE */}
-        <section onMouseMove={handleMouseMove} className={`py-24 px-6 md:px-24 border-t ${colors.border}`}>
+        <section className={`py-24 px-6 md:px-24 border-t ${colors.border}`}>
 
           {/* Section Header - Scaled down to establish context without overpowering */}
           <div className="max-w-7xl mx-auto mb-16">
-            
+
             <div className="flex items-center gap-3 mb-4">
               <Users size={16} className="text-green-500" />
               <span className={`text-xs font-mono uppercase tracking-widest ${colors.textMuted}`}>Network Sync</span>
@@ -412,7 +429,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 "Show me your friend and I would show you who you are." Meet my circle.
               </p>
             </div>
-            
+
           </div>
 
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 min-h-[650px]">
@@ -433,7 +450,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                       {circleNodes[activeIndex].name}
                     </h3>
                     <p className="text-lg md:text-xl text-green-500 font-medium italic">
-                      {circleNodes[activeIndex].tagline}
+
                     </p>
                   </div>
 
@@ -472,7 +489,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
 
                 {/* 3D Card */}
                 <motion.div
-                  style={{ perspective: '2000px', rotateX: tiltX, rotateY: tiltY }}
+                  style={{ perspective: '2000px' }}
                   className="w-full max-w-[380px] aspect-[9/16] relative"
                 >
                   <AnimatePresence initial={false} mode="popLayout" custom={direction}>
@@ -489,12 +506,30 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                       style={{ transformStyle: 'preserve-3d', originX: 0.5 }}
                       className={`absolute inset-0 rounded-[3rem] overflow-hidden border-8 border-zinc-900 ${colors.sliderBg} shadow-2xl`}
                     >
-                      <video src={circleNodes[activeIndex].video} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover grayscale brightness-75" />
+                      {circleNodes[activeIndex].video ? (
+                        <video
+                          src={circleNodes[activeIndex].video}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          className="absolute inset-0 w-full h-full object-cover grayscale brightness-75"
+                        />
+                      ) : (
+                        <img
+                          src={circleNodes[activeIndex].image}
+                          alt={circleNodes[activeIndex].name}
+                          className="absolute inset-0 w-full h-full object-cover grayscale brightness-75"
+                        />
+                      )}
 
                       {/* Top Story Bar */}
                       <div className="absolute top-6 left-6 right-6 z-50 flex gap-1.5">
                         <div className="h-0.5 flex-1 bg-white/20 rounded-full overflow-hidden">
-                          <motion.div key={activeIndex} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 7.5, ease: 'linear' }} className="h-full bg-white origin-left" />
+                          <motion.div
+                            className="h-full bg-green-500 origin-left"
+                            style={{ width: `${progress}%` }}
+                          />
                         </div>
                       </div>
 

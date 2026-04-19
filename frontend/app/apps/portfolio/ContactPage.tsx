@@ -155,24 +155,35 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       formData.append('service', data.service);
       formData.append('budget', data.budget);
       formData.append('message', data.message);
-      if (data.file) formData.append('file', data.file);
+      
+      if (data.file) {
+        formData.append('file', data.file);
+      }
 
       const response = await fetch(`${API_BASE}`, {
         method: 'POST',
+        mode: 'cors',
+        // Note: Content-Type is omitted to allow the browser to set the boundary for FormData
         body: formData,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error ?? 'Something went wrong. Please try again.');
+      // Handle potential empty responses or non-JSON errors
+      const contentType = response.headers.get("content-type");
+      let result;
+      if (contentType && contentType.includes("application/json")) {
+        result = await response.json();
+      } else {
+        result = { error: await response.text() };
       }
 
-      // Preserve the name for the success screen BEFORE resetting form state.
-      // If we reset data first, SuccessTransmission receives name="" because
-      // both state updates would be batched in the same render.
+      if (!response.ok) {
+        throw new Error(result.error || `Error: ${response.status}`);
+      }
+
       setSubmittedName(data.name);
       setData(INITIAL_DATA);
+      
+      // Navigate to success state
       safeSetStep(() => 5);
 
     } catch (err) {
