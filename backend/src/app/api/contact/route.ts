@@ -23,12 +23,12 @@ const ALLOWED_SERVICES = [
 ];
 
 const ALLOWED_BUDGETS = [
-  "$5k+",
-  "$10k+",
-  "$25k+",
-  "$50k+",
-  "Enterprise",
-  "TBD",
+  '₦200k+',
+  '₦300k+',
+  '₦500k+',
+  '₦1m+',
+  'Enterprise',
+  'TBD',
 ];
 
 const MAX_FILE_SIZE  = 5 * 1024 * 1024; // 5 MB

@@ -1,21 +1,26 @@
 import React from 'react'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react'; 
 
 function Chrome() {
   return (
-    <div className="w-full h-full min-h-[220px] bg-white text-gray-900 flex flex-col">
-      <header className="h-10 sm:h-11 md:h-12 flex items-center px-3 sm:px-4 border-b border-gray-200 bg-[#f3f3f3] text-xs sm:text-sm">
-        <div className="flex items-center gap-2 truncate">
-          <div className="w-4 h-4 rounded bg-blue-500" />
-          <span className="font-semibold truncate">Chrome</span>
-        </div>
-      </header>
-      <main className="flex-1 overflow-auto px-3 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm">
-        <p className="text-gray-700">
-          This is a placeholder for a Chrome-like browser window. Resize the window to see how the content adapts.
-        </p>
-      </main>
+    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+    <div className="w-48 h-48 md:w-64 md:h-64 opacity-80">
+      <DotLottieReact
+        src="https://lottie.host/331af30b-c98e-42a4-9b77-c490cf9eef31/CAbj95X0Wd.lottie"
+        loop
+        autoplay
+      />
     </div>
-  );
+    <div className="mt-4 animate-pulse">
+       <p className="text-green-500 font-mono text-sm tracking-[0.2em] uppercase">
+         Chrome Unavailable
+      </p>
+      <p className="text-gray-500 font-mono text-[10px] mt-2 italic">
+        Module currently under development
+      </p>
+    </div>
+  </div>
+  )
 }
 
-export default Chrome;
+export default Chrome

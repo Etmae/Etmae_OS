@@ -77,7 +77,7 @@ export const WorksPage = ({ theme = 'dark', onNavigate }: { theme?: string; onNa
                 
                 {/* SWITCHER (GRID VIEW) */}
                 <div className={`${colors.switchBg} backdrop-blur-2xl border ${colors.border} p-1.5 rounded-full flex gap-1 h-fit mb-4`}>
-                  <button onClick={() => handleToggle('grid')} className={`relative px-6 py-2 rounded-full text-[9px] font-mono uppercase tracking-widest transition-colors duration-150 flex items-center gap-2 z-10 ${colors.activeText}`}>
+                  <button onClick={() => handleToggle('grid')} className={`relative px-6  py-2 rounded-full text-[9px] font-mono uppercase tracking-widest transition-colors duration-150 flex items-center gap-2 z-10 ${colors.activeText}`}>
                     <LayoutGrid size={11} /> Gallery
                     <motion.div layoutId="activeTab" className={`absolute inset-0 ${colors.activeTab} rounded-full -z-10`} transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />
                   </button>

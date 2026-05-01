@@ -1,16 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import type { PortfolioSection } from './hooks/useNavigation';
 
 interface NextSectionProps {
   theme?: 'dark' | 'light';
+  onNavigate?: (section: PortfolioSection) => void;
 }
 
-const NextSection: React.FC<NextSectionProps> = ({ theme = 'dark' }) => {
+const NextSection: React.FC<NextSectionProps> = ({ theme = 'dark', onNavigate }) => {
   const isDark = theme === 'dark';
   
-  // Color matching is critical here. 
-  // If the hero image fades to black, this must be black.
+
   const bgColor = isDark ? 'bg-black' : 'bg-zinc-100';
   const textColor = isDark ? 'text-zinc-200' : 'text-zinc-800';
   const subTextColor = isDark ? 'text-zinc-500' : 'text-zinc-400';
@@ -65,6 +66,7 @@ const NextSection: React.FC<NextSectionProps> = ({ theme = 'dark' }) => {
                isDark={isDark} 
                subTextColor={subTextColor}
                borderColor={borderColor}
+               onNavigate={onNavigate}
              />
            ))}
         </div>
@@ -74,13 +76,18 @@ const NextSection: React.FC<NextSectionProps> = ({ theme = 'dark' }) => {
 };
 
 // Sub-component for clean rows
-const ProjectRow = ({ index, project, isDark, subTextColor, borderColor }: any) => {
+const ProjectRow = ({ index, project, isDark, subTextColor, borderColor, onNavigate }: any) => {
+  const handleClick = () => {
+    onNavigate?.('works');
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-5%" }}
       transition={{ delay: index * 0.1, duration: 0.6 }}
+      onClick={handleClick}
       className={`group relative flex flex-col md:flex-row items-baseline md:items-center justify-between py-12 md:py-16 border-b ${borderColor} cursor-pointer transition-colors hover:bg-white/5`}
     >
       <div className="flex items-baseline gap-8 md:gap-16">
@@ -92,7 +99,9 @@ const ProjectRow = ({ index, project, isDark, subTextColor, borderColor }: any) 
       
       <div className="flex items-center gap-8 mt-4 md:mt-0 w-full md:w-auto justify-between md:justify-end">
         <span className={`text-sm tracking-wider ${subTextColor} uppercase`}>{project.category}</span>
-        <ArrowRight className={`w-6 h-6 -rotate-45 group-hover:rotate-0 transition-transform duration-150 ${isDark ? 'text-white' : 'text-black'}`} />
+        <ArrowRight 
+        onClick={handleClick}
+        className={`w-6 h-6 -rotate-45 group-hover:rotate-0 transition-transform duration-150 ${isDark ? 'text-white' : 'text-black'}`} />
       </div>
     </motion.div>
   );

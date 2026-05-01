@@ -1,3 +1,3 @@
-import { FullContactPage } from "../apps/portfolio/ContactPage";
+import { ContactPage } from "../apps/portfolio/ContactPage";
 
-export default FullContactPage;
+export default ContactPage;

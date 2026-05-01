@@ -1,8 +1,6 @@
-
-
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { motion, useTransform, MotionValue } from 'framer-motion';
-import { Mail, MessageSquare, ArrowRight, Github, Twitter, Linkedin } from 'lucide-react';
+import { ArrowRight, Github, Twitter, Linkedin } from 'lucide-react';
 
 interface ContactProps {
   theme?: 'dark' | 'light';
@@ -10,14 +8,18 @@ interface ContactProps {
   onViewContact: () => void;
 }
 
-export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollYProgress, onViewContact }) => {
+export const ContactCompact: React.FC<ContactProps> = ({
+  theme = 'dark',
+  scrollYProgress,
+  onViewContact
+}) => {
   const isDark = theme === 'dark';
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Use the shared scrollYProgress from shell for parallax effect
-  // This ensures synchronization with the Hero's zoom effects
+  // Parallax horizontal translation synced with global scroll progress
   const xTranslate = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
+  // Theme-dependent utility classes
   const bgClass = isDark ? 'bg-black' : 'bg-zinc-50';
   const textPrimary = isDark ? 'text-zinc-100' : 'text-zinc-900';
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
@@ -28,43 +30,46 @@ export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollY
   }, [onViewContact]);
 
   return (
-    <section 
+    <section
       ref={containerRef}
       className={`relative w-full overflow-hidden py-20 md:py-32 ${bgClass} ${textPrimary}`}
     >
-      {/* Playful Moving Background Text */}
-      <motion.div 
+      {/* Decorative oversized scrolling text (non-interactive) */}
+      <motion.div
         style={{ x: xTranslate }}
         className="absolute top-1/2 -translate-y-1/2 whitespace-nowrap pointer-events-none opacity-[0.03] select-none"
       >
-        <span className="text-[20vw] font-black uppercase tracking-tighter"
-        >
+        <span className="text-[20vw] font-black uppercase tracking-tighter">
           Let's Build Something Better Together — Let's Build Something Better Together —
         </span>
       </motion.div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-        
-        {/* Status Badge */}
-        <motion.div 
+        {/* Availability indicator */}
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
-          className={`flex items-center gap-2 px-4 py-2 rounded-full border mb-8 ${isDark ? 'border-zinc-800' : 'border-zinc-200'}`}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full border mb-8 ${
+            isDark ? 'border-zinc-800' : 'border-zinc-200'
+          }`}
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
           </span>
-          <span className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold">Inbox Open</span>
+          <span className="text-[10px] font-mono uppercase tracking-[0.2em] font-bold">
+            Inbox Open
+          </span>
         </motion.div>
 
-        {/* Main Pitch */}
+        {/* Primary heading */}
         <h2 className="text-5xl md:text-8xl font-light tracking-tighter mb-12">
-          Got an idea?<br />
+          Got an idea?
+          <br />
           <span className="italic font-serif">Don't be a stranger.</span>
         </h2>
 
-        {/* Magnetic-style CTA Button */}
+        {/* Call-to-action button */}
         <button
           type="button"
           onClick={handleViewContact}
@@ -82,15 +87,42 @@ export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollY
           </motion.div>
         </button>
 
-        {/* Simple Footer Links */}
-        <div className="mt-24 w-full pt-12 border-t border-zinc-800/20 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex gap-8">
-            <SocialLink href="#" icon={<Github size={20} />} label="GitHub" theme={theme} />
-            <SocialLink href="#" icon={<Linkedin size={20} />} label="LinkedIn" theme={theme} />
-            <SocialLink href="#" icon={<Twitter size={20} />} label="Twitter" theme={theme} />
-          </div>
+        {/* Footer section */}
+        <div className="mt-24 w-full pt-12 border-t border-zinc-800/20 flex flex-col md:flex-row justify-between items-center gap-8 sm:gap-12 shrink-0">
           
-          <div className={`text-[10px] font-mono uppercase tracking-widest ${textSecondary}`}>
+          {/* 
+            Social links container:
+            - Full width ensures centering context on mobile
+            - justify-center centers icons horizontally on small screens
+            - md:justify-start restores left alignment on larger screens
+          */}
+          <div className="w-full flex justify-center md:justify-start">
+            <div className="flex gap-8">
+              <SocialLink
+                href="https://github.com/Etmae"
+                icon={<Github size={20} />}
+                label="GitHub"
+                theme={theme}
+              />
+              <SocialLink
+                href="https://www.linkedin.com/in/erioluwa-olujimi-a38b42237/"
+                icon={<Linkedin size={20} />}
+                label="LinkedIn"
+                theme={theme}
+              />
+              <SocialLink
+                href="https://x.com/Ttmw53820"
+                icon={<Twitter size={20} />}
+                label="Twitter"
+                theme={theme}
+              />
+            </div>
+          </div>
+
+          {/* Footer note */}
+          <div
+            className={`text-[10px] font-mono uppercase tracking-widest ${textSecondary} text-center md:text-right`}
+          >
             Handcrafted in 2025 • Stay Curious
           </div>
         </div>
@@ -99,14 +131,31 @@ export const ContactCompact: React.FC<ContactProps> = ({ theme = 'dark', scrollY
   );
 };
 
-const SocialLink = ({ href, icon, label, theme }: { href: string, icon: React.ReactNode, label: string, theme: string }) => {
+const SocialLink = ({
+  href,
+  icon,
+  label,
+  theme
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  theme: string;
+}) => {
   const isDark = theme === 'dark';
+
   return (
-    <a 
-      href={href} 
-      className={`group flex items-center gap-2 transition-colors ${isDark ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-black'}`}
+    <a
+      href={href}
+      className={`group flex items-center gap-2 transition-colors ${
+        isDark ? 'text-zinc-500 hover:text-white' : 'text-zinc-400 hover:text-black'
+      }`}
     >
       {icon}
+      {/* 
+        Label is hidden by default and revealed on hover.
+        Maintains minimal UI while preserving accessibility context.
+      */}
       <span className="text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity duration-150">
         {label}
       </span>

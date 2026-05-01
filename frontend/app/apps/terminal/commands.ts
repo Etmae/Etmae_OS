@@ -19,7 +19,8 @@ export const TERMINAL_CONFIG = {
 export const generateId = () => Math.random().toString(36).substring(2, 11);
 
 // ─────────────────────────────────────────────────────────────
-// PARSER — handles flags (-v, --verbose), quoted args, subcommands
+// Command parser: processes user input including flags (-v, --verbose),
+// quoted arguments, and subcommand routing.
 // ─────────────────────────────────────────────────────────────
 export interface ParsedCommand {
   cmd: string;
@@ -102,7 +103,7 @@ export const COMMANDS: Record<string, CommandHandler> = {
       out('AVAILABLE COMMANDS:', false),
       out(''),
       out('  ls [target]        List information'),
-      out('  whereis [target]   Show location data'),
+      out('  whereis live       Show location data'),
       out('  whoami             Professional bio'),
       out('  contact            Social and email links'),
       out('  neofetch           System information'),
@@ -135,12 +136,11 @@ export const COMMANDS: Record<string, CommandHandler> = {
         out('TECHNICAL PROFICIENCIES', false),
         out(''),
         out('  [Frontend]      React · TypeScript · Next.js · Tailwind · Framer Motion'),
-        out('  [Backend]       Node.js · SQL · PostgreSQL · RESTful APIs'),
+        out('  [Backend]       SQL · PostgreSQL · RESTful APIs  · Django · Nextjs · Python'),
         out('  [Architecture]  System Normalization · Requirement Discovery'),
-        out('  [Tools]         Git · Figma · Webpack'),
         ...(all ? [
           out(''),
-          out('  [Learning]      Rust · WebAssembly · Edge Computing'),
+          out('  [Exploring]      ML · SPRINGBOOT · FLUTTER'),
         ] : []),
         out(''),
       ];
@@ -150,8 +150,8 @@ export const COMMANDS: Record<string, CommandHandler> = {
       return textToLines(`
 projects/
   ├── etmae-portfolio/    (this site)
-  ├── management-arch/    system architecture
-  └── ui-components/      component library
+  ├── Looms & Aura/    system architecture
+  └── Agrotech/      component library
 `);
     }
 
@@ -162,7 +162,7 @@ projects/
     const target = args[0]?.toLowerCase();
     if (!target || target === 'live') {
       return textToLines(`
-LOCATION:      Port Harcourt, Nigeria (UTC+1)
+LOCATION:      Ibadan, Nigeria (UTC+1)
 AVAILABILITY:  Open to remote · Relocation-ready
 TIMEZONE:      WAT — West Africa Time
 `);
@@ -171,23 +171,23 @@ TIMEZONE:      WAT — West Africa Time
   },
 
   whoami: async () => textToLines(`
-Etmae
-Full-Stack Engineer · Institutional systems · Luxury UI/UX
+Erioluwa Elijah Olujimi
+Full-Stack Engineer
 
-Currently building robust, scalable management architectures
+building robust, scalable management architectures
 with a focus on clean data models and exceptional interfaces.
 `),
 
   contact: async () => [
     out(''),
-    out('  GitHub    →  github.com/etmae', false),
+    out('  GitHub    →  https://github.com/Etmae', false),
     out('  LinkedIn  →  linkedin.com/in/etmae', false),
-    out('  Email     →  contact@etmae.dev', false),
+    out('  Email     →  elijaholujimi060@gmail.com', false),
     out(''),
   ],
 
   neofetch: async () => {
-    // Note: Terminal.tsx adds its own loading state before calling this
+
     return [
       sys(''),
       sys('          .-.       OS: Etmae Portfolio OS'),
@@ -196,7 +196,7 @@ with a focus on clean data models and exceptional interfaces.
       sys('       (\\_;/)      Shell: Etmae-CMD v3.0'),
       sys('                   UI: Tailwind + Framer Motion'),
       sys('                   Uptime: ∞'),
-      sys('                   Theme: Dark (forced)'),
+      sys('                   Theme: Dark (forced) | light'),
       sys(''),
     ];
   },

@@ -20,8 +20,6 @@ import { ProjectDetailWrapper } from './ProjectDetailWrapper';
 import { RevealOnScroll } from './components/RevealOnScroll';
 import HeroOrb from './components/AIOrb';
 
-
-
 const AboutPage    = lazy(() => import('./About'));
 const ProjectsPage = lazy(() => 
   import('./Works').then(module => ({ default: module.default }))
@@ -49,7 +47,7 @@ type LatestProjectsType = React.ComponentType<{
   theme: Theme;
   scrollContainer: React.RefObject<HTMLDivElement | null>;
   scrollYProgress: ReturnType<typeof useScroll>['scrollYProgress'];
-  onNavigate: (section: PortfolioSection) => void;
+  onNavigate: (section: PortfolioSection, projectId?: string) => void;
 }>;
 
 type ContactCompactType = React.ComponentType<{
@@ -90,14 +88,7 @@ export const PortfolioShell: React.FC = () => {
     toggleTheme();
   };
 
-  // ── KEY FIX: reset scroll BEFORE the section state update ────────────────
-  //
-  // If we reset inside a useEffect(,[activeSection]) the new section component
-  // mounts FIRST, its scroll listener reads a stale non-zero scrollTop, and
-  // the animation starts mid-progress. By resetting synchronously here —
-  // before navigate() triggers the re-render — the scroll container is already
-  // at 0 when the new component's useEffect runs.
-  const handleNavigate = (section: PortfolioSection, projectId?: string) => {
+ const handleNavigate = (section: PortfolioSection, projectId?: string) => {
     scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
     navigate(section, projectId);
   };
@@ -119,27 +110,26 @@ export const PortfolioShell: React.FC = () => {
           pointerEvents: loading ? 'none' : 'auto',
         }}
       >
-       {/* AI INTELLIGENCE TRIGGER DOCK
-            Handles responsive positioning and constraints for the HeroOrb.
-        */}
         <div 
           className="fixed z-[999] pointer-events-auto
-                     bottom-6 right-6     /* Mobile: Standard corner offset */
+                     bottom-6 right-6      /* Mobile: Standard corner offset */
                      md:bottom-12 md:right-12 /* Desktop: Elegant breathing room */
                      w-16 h-16            /* Base size */
                      md:w-20 md:h-20      /* Responsive scaling */"
         >
           <HeroOrb onNavigate={handleNavigate} />
         </div>
-        {/* Sticky Navbar — lives inside scrollRef, so heroTrackRef in child
-            pages starts at offsetTop ≈ navbarHeight. AboutPage's raw scroll
-            listener uses scrollTop directly (not Framer Motion's offset-based
-            system) so this offset is irrelevant to the zoom animation. */}
+        {/* 
+          Sticky navigation bar positioned inside the scroll container.
+          The navbar height offset affects child page scroll calculations used for animations.
+          Child pages track raw scrollTop directly, not Framer Motion's offset-based scroll events,
+          so the navbar offset is factored into each child page's animation triggers.
+        */}
         <div className="sticky top-0 z-50 w-full">
           <PortfolioNavbar
             theme={theme}
             activeSection={activeSection}
-            onNavigate={handleNavigate}   // ← handleNavigate, not navigate
+            onNavigate={handleNavigate}  
             onThemeToggle={handleThemeToggle}
             scrollContainer={scrollRef}
             onMobileMenuStateChange={setIsMobileMenuOpen}
@@ -159,7 +149,7 @@ export const PortfolioShell: React.FC = () => {
               contentScale={contentScale}
               contentPointerEvents={contentPointerEvents}
               activeSection={activeSection}
-              onNavigate={handleNavigate}   // ← handleNavigate
+              onNavigate={handleNavigate}  
               onThemeToggle={handleThemeToggle}
               isMobileMenuOpen={isMobileMenuOpen}
             />
@@ -168,7 +158,7 @@ export const PortfolioShell: React.FC = () => {
           {activeSection === 'about' && (
             <TypedAboutPage
               theme={theme}
-              onNavigate={handleNavigate}   // ← handleNavigate
+              onNavigate={handleNavigate}  
               scrollContainer={scrollRef}
             />
           )}
@@ -176,7 +166,7 @@ export const PortfolioShell: React.FC = () => {
           {activeSection === 'works' && (
             <TypedProjectsPage
               theme={theme}
-              onNavigate={handleNavigate}   // ← handleNavigate
+              onNavigate={handleNavigate}   
               scrollContainer={scrollRef}
             />
           )}
@@ -198,6 +188,7 @@ export const PortfolioShell: React.FC = () => {
         <SystemFooter
           theme={theme}
           scrollContainer={scrollRef}
+          onNavigate={handleNavigate} // Intercepts footer links to map them to shell routing
         />
       </div>
     </>
@@ -264,7 +255,7 @@ const HomeContent: React.FC<HomeContentProps> = ({
     >
       <div className="relative z-10 bg-inherit">
         <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
-          <NextSection theme={theme} />
+          <NextSection theme={theme} onNavigate={onNavigate} />
         </RevealOnScroll>
 
         <RevealOnScroll initialY={40} initialScale={0.98} initialBlur={12} duration={1.1} margin="-80px">
@@ -293,6 +284,5 @@ const HomeContent: React.FC<HomeContentProps> = ({
     </motion.main>
   </>
 );
-
 
 export default PortfolioShell;

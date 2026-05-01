@@ -19,7 +19,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     // Apply data-theme to the document root, which is the single source of truth for CSS theme variables.
     root.setAttribute('data-theme', theme);
 
-    // Prevent a cross-fading transition effect across many components by temporarily disabling transitions.
+    // Temporarily disable CSS transitions to prevent visual flashing as theme colors update across all components.
     root.classList.add('theme-transition-disabled');
 
     const timeoutId = window.setTimeout(() => {

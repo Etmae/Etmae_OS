@@ -23,7 +23,7 @@ export const SystemShell: React.FC<SystemShellProps> = ({
   const location = useLocation();
 
   // 1. Define paths where the Taskbar MUST NOT appear
-  const hideTaskbarPaths = ['/signin', '/lockscreen', '/'];
+  const hideTaskbarPaths = ['/signin', '/lockscreen', '/', '/off'];
   
   // 2. Check if we are on an excluded screen
   const isExcluded = hideTaskbarPaths.includes(location.pathname);

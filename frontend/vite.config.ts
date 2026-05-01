@@ -14,7 +14,7 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
-     // Temporarily disabled for testing
+     // Currently disabled pending further testing and validation
     strictPort: true,
     host: true,
   }

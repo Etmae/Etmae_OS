@@ -5,6 +5,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigate,
 } from "react-router";
 
 import * as React from "react";
@@ -49,6 +50,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const navigate = useNavigate();
+  const [bootKey, setBootKey] = React.useState(0); // Key to force re-mount on restart
+  
   const [isLoading, setIsLoading] = React.useState(() => {
     // Check if system is already "on" in this session
     if (typeof window !== "undefined") {
@@ -62,9 +66,29 @@ export default function App() {
     setIsLoading(false);
   };
 
+  const handleShutdown = () => {
+    // Navigate to the off screen
+    navigate('/off');
+  };
+
+  const handleRestart = () => {
+    // Clear the boot flag and force re-mount to restart boot sequence
+    sessionStorage.removeItem("system_booted");
+    setBootKey(prev => prev + 1);
+  };
+
+  const handleLock = () => {
+    navigate('/lockscreen');
+  };
+
   return (
     <ThemeProvider>
-      <SystemShell>
+      <SystemShell
+        key={bootKey} // Force re-mount on restart
+        onLock={handleLock}
+        onRestart={handleRestart}
+        onShutdown={handleShutdown}
+      >
         <Outlet />
       </SystemShell>
 

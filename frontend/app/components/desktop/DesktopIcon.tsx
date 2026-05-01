@@ -1,17 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-interface Position {
+// Exported so DesktopGrid and other components can use it
+export interface Position {
   x: number;
   y: number;
 }
 
 interface DesktopIconProps {
-  appId: string; // Changed from 'index' to 'appId' to match your registry
+  appId: string;
   icon: React.ReactNode;
   label: string;
-  onClick: () => void; // Triggered on Double Click
+  onClick: () => void;
   isSelected?: boolean;
-  onSelect?: () => void; // Triggered on Single Click
+  onSelect?: () => void;
   position: Position;
   onPositionChange: (position: Position) => void;
 }
@@ -29,11 +30,8 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
 
-  // --- Drag Logic ---
   const handleMouseDown = (e: React.MouseEvent) => {
-    // Only drag with left click (button 0)
     if (e.button !== 0) return;
-
     e.preventDefault();
     e.stopPropagation();
     
@@ -51,9 +49,13 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
       const newX = e.clientX - dragStart.x;
       const newY = e.clientY - dragStart.y;
 
-      // Keep icons within viewport bounds (minus taskbar)
-      const maxX = window.innerWidth - 110;
-      const maxY = window.innerHeight - 150;
+      // Dynamic boundaries based on current window scale
+      const TASKBAR_HEIGHT = 56; 
+      const ICON_WIDTH = 110;
+      const ICON_HEIGHT = 100;
+
+      const maxX = window.innerWidth - ICON_WIDTH;
+      const maxY = window.innerHeight - TASKBAR_HEIGHT - ICON_HEIGHT;
 
       onPositionChange({
         x: Math.max(5, Math.min(newX, maxX)),
@@ -93,10 +95,7 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
       onMouseDown={handleMouseDown}
       onClick={(e) => {
         e.stopPropagation();
-        // Windows standard: Launch only on Double Click
-        if (e.detail === 2) {
-          onClick();
-        }
+        if (e.detail === 2) onClick();
       }}
       onContextMenu={(e) => {
         e.preventDefault();
@@ -111,7 +110,6 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
             : 'hover:bg-white/5 hover:border-white/10'
         }`}
       >
-        {/* Icon Container */}
         <div
           className="flex items-center justify-center transition-transform duration-200"
           style={{
@@ -132,7 +130,6 @@ export const DesktopIcon: React.FC<DesktopIconProps> = ({
           }
         </div>
 
-        {/* Label */}
         <span
           className={`text-[11px] text-center font-normal leading-tight px-1.5 py-0.5 rounded-sm transition-colors duration-200 ${
             isSelected ? 'bg-[#0078d4] text-white' : 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]'

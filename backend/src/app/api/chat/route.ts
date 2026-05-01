@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { detectIntent, getContext } from "@/libs/context";
-import { routeAIRequest } from "@/libs/ai";
+import { getRelevantContext, addToContext } from "@/libs/ai/rag";
 import { getCorsHeaders } from "@/libs/cors";
-
 // ============================================================
 // RATE LIMITING — simple in-memory per-IP limiter
-// Resets every WINDOW_MS milliseconds
 // ============================================================
-const RATE_LIMIT_MAX = 20;          // max requests per window per IP
-const WINDOW_MS = 60 * 1000;        // 1 minute window
+const RATE_LIMIT_MAX = 20;
+const WINDOW_MS = 60 * 1000;
 
 interface RateLimitEntry {
   count: number;
@@ -33,15 +30,25 @@ function isRateLimited(ip: string): boolean {
 }
 
 // ============================================================
-// CONSTANTS
+// CONSTANTS & PERSONAS
 // ============================================================
 const MAX_MESSAGE_LENGTH = 1000;
-const MAX_HISTORY_ITEMS = 6; // last N messages kept (aligned with frontend memory)
+const MAX_HISTORY_ITEMS = 6;
 
-// ============================================================
-// PERSONAS — controls tone/length per source
-// Add new personas here as the system grows
-// ============================================================
+const systemMessage = {
+  role: "system",
+  content: `You are the personal AI representative for Etmae, a software developer. 
+  Use the following context to answer questions as if you are Etmae. 
+  
+  Context:
+  ${addToContext}
+  
+  Rules:
+  1. Use "I", "me", and "my" (e.g., "I have experience with React" instead of "The developer has experience").
+  2. If the context doesn't mention a specific project, mention your general skills and experience instead.
+  3. Keep answers concise and professional.`
+};
+
 const PERSONAS: Record<string, string> = {
   hero: `
 You are an AI assistant on a developer's portfolio hero section.
@@ -71,49 +78,21 @@ RULES:
   `.trim(),
 };
 
-const JSON_FORMAT_RULE = `
-RESPONSE FORMAT:
-Respond ONLY with this exact JSON structure, no markdown, no backticks, no extra text:
-{
-  "message": "Your natural language response here",
-  "action": "NONE" | "OPEN_PROJECT" | "OPEN_SKILLS" | "OPEN_CONTACT",
-  "payload": { "projectId": "optional-project-id" }
-}
 
-CRITICAL: Output ONLY the JSON object.
-- No text before it
-- No text after it
-- No HTML or XML tags
-- No escape sequences outside string values
-- No backticks or code fences
+
+// Streaming response format: send natural text first, with metadata JSON appended on the final line.
+const STREAMING_FORMAT_RULE = `
+CRITICAL RESPONSE FORMAT:
+You must respond naturally. Then, on a new line at the absolute end of your response, you MUST append a routing metadata block.
+Format exactly like this:
+__METADATA__ {"action": "NONE" | "OPEN_PROJECT" | "OPEN_SKILLS" | "OPEN_CONTACT", "payload": { "projectId": "optional-id" }}
+
+Example:
+Yes, I have experience with React and Next.js. I built a dashboard using them.
+__METADATA__ {"action": "OPEN_PROJECT", "payload": {"projectId": "react-dashboard"}}
 `.trim();
 
-const FALLBACK_ASSISTANT_MESSAGE =
-  "I couldn't generate a response right now. Please try again in a moment.";
 
-// ============================================================
-// JSON CLEANER — strips common AI response artifacts
-// ============================================================
-function cleanAndParseAIResponse(raw: string): {
-  message?: string;
-  action?: string;
-  payload?: Record<string, unknown>;
-} {
-  let cleaned = raw
-    .replace(/```json[\s\S]*?```/g, (match) => match.replace(/```json|```/g, "")) // unwrap code fences
-    .replace(/```/g, "")                  // any remaining backticks
-    .replace(/<\//g, "")                  // kills </</< flood artifacts
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "") // control chars (preserve \n \t)
-    .trim();
-
-  // Extract only the JSON object if stray text leaked around it
-  const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    cleaned = jsonMatch[0];
-  }
-
-  return JSON.parse(cleaned); // throws if still malformed — caught upstream
-}
 
 // ============================================================
 // CORS PREFLIGHT
@@ -129,7 +108,6 @@ export async function OPTIONS(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const headers = getCorsHeaders(req.headers.get("origin"));
 
-  // --- Rate limiting ---
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     req.headers.get("x-real-ip") ??
@@ -137,131 +115,129 @@ export async function POST(req: NextRequest) {
 
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { message: "Too many requests. Please wait a moment and try again.", action: "NONE", payload: {} },
-      { status: 429, headers }
+      { message: "Too many requests. Please wait." },
+      { status: 429, headers },
     );
   }
 
   try {
     const body = await req.json();
-    const {
-      message,
-      conversationHistory = [],
-      source = "app",
-    } = body;
+    const { message, conversationHistory = [], source = "app" } = body;
 
     // --- Input validation ---
-    if (!message || typeof message !== "string") {
+    if (
+      !message ||
+      typeof message !== "string" ||
+      message.trim().length === 0
+    ) {
       return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400, headers }
-      );
-    }
-
-    if (message.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Message cannot be empty" },
-        { status: 400, headers }
+        { error: "Invalid message" },
+        { status: 400, headers },
       );
     }
 
     if (message.length > MAX_MESSAGE_LENGTH) {
       return NextResponse.json(
-        { message: "Your message is too long. Please keep it under 1000 characters.", action: "NONE", payload: {} },
-        { status: 400, headers }
+        { error: "Message too long." },
+        { status: 400, headers },
       );
     }
 
-    // --- Sanitize + cap conversation history ---
-    const safeHistory: { role: string; content: string }[] = Array.isArray(conversationHistory)
+    // --- Sanitize history ---
+    const safeHistory = Array.isArray(conversationHistory)
       ? conversationHistory
-          .filter(
-            (m) =>
-              m &&
-              typeof m === "object" &&
-              (m.role === "user" || m.role === "assistant") &&
-              typeof m.content === "string"
-          )
-          .slice(-MAX_HISTORY_ITEMS) // keep only last N messages
-          .map((m) => ({ role: m.role, content: m.content.slice(0, 500) })) // cap each history item
+          .filter((m) => m?.role && m?.content)
+          .slice(-MAX_HISTORY_ITEMS)
+          .map((m) => ({ role: m.role, content: m.content.slice(0, 500) }))
       : [];
 
-    const intent = detectIntent(message);
-    const context = getContext(intent);
-
-    // Pick persona — fall back to "app" if unknown source passed
+    // --- 1. Fetch RAG Context ---
+    const context = await getRelevantContext(message);
+    console.log("[RAG Context]:", context);
+    // --- 2. Build Prompt ---
     const persona = PERSONAS[source] ?? PERSONAS.app;
-
-    const fullPrompt = `
+    const systemPrompt = `
 ${persona}
 
-${JSON_FORMAT_RULE}
+${STREAMING_FORMAT_RULE}
 
-CONTEXT:
+${systemMessage.content.replace("${addToContext}", context)}
+DATABASE CONTEXT:
 ${context}
-
-CONVERSATION SO FAR:
-${safeHistory.map((m) => `${m.role}: ${m.content}`).join("\n")}
-
-USER: ${message}
     `.trim();
 
-    const aiResponse = await routeAIRequest({
-      prompt: fullPrompt,
-      maxTokens: 256,
-      temperature: 0.4,
-    });
+    // Prepare messages array for the AI provider
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...safeHistory,
+      { role: "user", content: message },
+    ];
 
-    // --- Parse AI response with hardened cleaner ---
-    let parsed: { message?: string; action?: string; payload?: Record<string, unknown> };
-    try {
-      parsed = cleanAndParseAIResponse(aiResponse.text);
-    } catch {
-      console.error("[Chat Route] JSON parse failed. Raw:", aiResponse.text);
-      // Graceful degradation: strip any leaked JSON/tags and use raw text
-      const fallbackText = aiResponse.text
-        .replace(/\{[\s\S]*\}/g, "")   // remove any JSON blob
-        .replace(/<[^>]+>/g, "")        // strip HTML/XML tags
-        .replace(/[<>{}]/g, "")         // strip stray brackets
-        .trim();
+    // 3. Request the AI provider using an OpenAI/OpenRouter-compatible endpoint.
+    const aiResponse = await fetch(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          // OpenRouter specific headers (Required for some rankings/models)
+          "HTTP-Referer": "http://localhost:3000",
+          "X-Title": "Etmae Portfolio AI",
+        },
+        body: JSON.stringify({
+          model: "openai/gpt-4o-mini",
+          messages: messages,
+          temperature: 0.4,
+          max_tokens: 300,
+          stream: true,
+        }),
+      },
+    );
 
-      parsed = {
-        message: fallbackText || FALLBACK_ASSISTANT_MESSAGE,
-        action: "NONE",
-        payload: {},
-      };
+    if (!aiResponse.ok) {
+      const errorText = await aiResponse.text();
+      console.error("[OpenRouter Error]:", errorText);
+      return new Response(JSON.stringify({ error: "AI Provider Error" }), {
+        status: aiResponse.status,
+      });
     }
 
-    // --- Build validated safe response ---
-    const safeResponse = {
-      message:
-        typeof parsed.message === "string" && parsed.message.trim()
-          ? parsed.message
-          : FALLBACK_ASSISTANT_MESSAGE,
-      action:
-        parsed.action === "OPEN_PROJECT" ||
-        parsed.action === "OPEN_SKILLS" ||
-        parsed.action === "OPEN_CONTACT"
-          ? parsed.action
-          : "NONE",
-      payload:
-        parsed.payload && typeof parsed.payload === "object"
-          ? parsed.payload
-          : {},
-    };
-
-    // Note: _provider intentionally omitted from response to avoid leaking AI backend info
-    return NextResponse.json(safeResponse, { headers });
-
-  } catch (err) {
-    console.error("Chat route error:", err);
-    return NextResponse.json(
-      {
-        message: "I encountered an issue. Please try again.",
-        action: "NONE",
-        payload: {},
+    // --- 4. Pipe Stream to Client ---
+    // We pass the raw Server-Sent Events (SSE) stream directly to the frontend.
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = aiResponse.body?.getReader();
+        if (!reader) {
+          controller.close();
+          return;
+        }
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            controller.enqueue(value);
+          }
+        } catch (e) {
+          console.error("Streaming error", e);
+        } finally {
+          controller.close();
+        }
       },
-      { status: 500, headers }
+    });
+
+    // Return the stream with proper text/event-stream headers
+    const streamHeaders = new Headers(headers);
+    streamHeaders.set("Content-Type", "text/event-stream");
+    streamHeaders.set("Cache-Control", "no-cache");
+    streamHeaders.set("Connection", "keep-alive");
+
+    return new NextResponse(stream, { headers: streamHeaders });
+  } catch (err) {
+    console.error("[Chat Route Error]:", err);
+    return NextResponse.json(
+      { error: "I encountered an issue connecting to my neural network." },
+      { status: 500, headers },
     );
   }
 }

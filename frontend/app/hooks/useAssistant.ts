@@ -1,110 +1,114 @@
 // frontend/hooks/useAssistant.ts
 import { useState, useCallback } from "react";
 
-interface Message {
+export interface Message {
   role: "user" | "assistant";
   content: string;
-}
-
-interface AIResponse {
-  message?: string;
+  // Type extensions required to properly type the assistant hook exports and eliminate TypeScript errors.
   action?: "NONE" | "OPEN_PROJECT" | "OPEN_SKILLS" | "OPEN_CONTACT";
   payload?: { projectId?: string };
 }
 
-// ============================================================
-// SANITIZER — strips leaked JSON, XML/HTML tags, and control
-// characters from AI message strings before storing them.
-// This is the last line of defence before content hits the UI.
-// ============================================================
-function sanitizeAIMessage(raw: string): string {
-  return raw
-    .replace(/\{[\s\S]*?\}/g, "")        // remove any leaked JSON blobs
-    .replace(/<[^>]+>/g, "")             // strip HTML / XML tags
-    .replace(/[<>{}]/g, "")              // stray angle brackets or braces
-    .replace(/<\//g, "")                 // the </</< artifact flood
-    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "") // control chars
-    .trim();
+export interface AIResponse {
+  message?: string;
+  action?: Message["action"];
+  payload?: Message["payload"];
 }
-
-// frontend/hooks/useAssistant.ts
-// ... (keep your Message, AIResponse interfaces, and sanitizeAIMessage function exactly as they are)
 
 export function useAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
-  const fallbackMessage = "Something went wrong. Try again.";
 
   const sendMessage = useCallback(
     async (
       input: string,
-      onAction?: (
-        action: AIResponse["action"],
-        payload: AIResponse["payload"],
-        messageText: string // 👈 Added so HeroOrb can run detectNavigationIntent
-      ) => void,
-      options?: { source?: "app" | "hero" } // 👈 Added to control backend logic
+      onAction?: (action: Message["action"], payload: Message["payload"], messageText: string) => void,
+      options?: { source?: "app" | "hero" | "terminal" }
     ) => {
       const trimmedInput = input.trim();
       if (!trimmedInput) return;
 
-      const userMessage: Message = { role: "user", content: trimmedInput };
-      setMessages((prev) => [...prev, userMessage]);
+      // 1. Add user message
+      setMessages((prev) => [...prev, { role: "user", content: trimmedInput }]);
       setLoading(true);
 
       try {
         const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const res = await fetch(`${backendUrl}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: trimmedInput,
+            conversationHistory: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
+            source: options?.source || "app",
+          }),
+        });
 
-        let res: Response;
-        try {
-          res = await fetch(`${backendUrl}/api/chat`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              message: trimmedInput,
-              conversationHistory: messages.slice(-6),
-              source: options?.source || "app", // 👈 Defaults to "app", overridden by Orb
-            }),
-            signal: controller.signal,
-          });
-        } finally {
-          clearTimeout(timeoutId);
+        if (!res.ok || !res.body) throw new Error("Failed to connect");
+
+        // 2. Add the empty assistant message ONLY when the stream starts
+        setMessages((prev) => [...prev, { role: "assistant", content: "" }]);
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+        let metadataJson = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n").filter(line => line.trim() !== "");
+          
+          for (const line of lines) {
+            const message = line.replace(/^data: /, "");
+            if (message === "[DONE]") break;
+
+            try {
+              const parsed = JSON.parse(message);
+              const content = parsed.choices[0]?.delta?.content || "";
+              fullText += content;
+
+              let displayedText = fullText;
+              if (fullText.includes("__METADATA__")) {
+                const parts = fullText.split("__METADATA__");
+                displayedText = parts[0].trim();
+                metadataJson = parts[1].trim();
+              }
+
+              // Update message content in real-time
+              setMessages((prev) => {
+                const newMessages = [...prev];
+                const lastIdx = newMessages.length - 1;
+                if (newMessages[lastIdx].role === "assistant") {
+                  newMessages[lastIdx].content = displayedText;
+                }
+                return newMessages;
+              });
+            } catch (e) { /* ignore partial JSON */ }
+          }
         }
 
-        let data: AIResponse | null = null;
-        try {
-          data = (await res.json()) as AIResponse;
-        } catch {
-          data = null;
+        // 3. Finalize: Store metadata inside the message object itself
+        if (metadataJson) {
+          try {
+            const meta = JSON.parse(metadataJson);
+            setMessages((prev) => {
+              const newMessages = [...prev];
+              const lastIdx = newMessages.length - 1;
+              newMessages[lastIdx].action = meta.action;
+              newMessages[lastIdx].payload = meta.payload;
+              return newMessages;
+            });
+
+            if (onAction) onAction(meta.action, meta.payload, fullText.split("__METADATA__")[0].trim());
+          } catch (e) {
+            console.error("Metadata parse error", e);
+          }
         }
-
-        const rawMessage =
-          typeof data?.message === "string" && data.message.trim()
-            ? data.message
-            : !res.ok
-            ? `Request failed (${res.status}). Please try again.`
-            : fallbackMessage;
-
-        const safeContent = sanitizeAIMessage(rawMessage) || fallbackMessage;
-        const assistantMessage: Message = { role: "assistant", content: safeContent };
-
-        setMessages((prev) => [...prev, assistantMessage]);
-
-        // 👈 Always trigger onAction if provided, so the Orb can read safeContent
-        if (onAction) {
-          onAction(data?.action || "NONE", data?.payload ?? {}, safeContent);
-        }
-      } catch (err: any) {
-        if (err?.name === "AbortError") {
-          setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: "Request timed out. Please try again." },
-          ]);
-          return;
-        }
-        setMessages((prev) => [...prev, { role: "assistant", content: fallbackMessage }]);
+      } catch (err) {
+        console.error("Stream Error:", err);
       } finally {
         setLoading(false);
       }
@@ -112,7 +116,5 @@ export function useAssistant() {
     [messages]
   );
 
-  const clearHistory = () => setMessages([]);
-
-  return { messages, loading, sendMessage, clearHistory };
+  return { messages, loading, sendMessage, clearHistory: () => setMessages([]) };
 }

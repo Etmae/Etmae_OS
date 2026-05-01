@@ -72,8 +72,8 @@ export const Windows11Workflow: React.FC = () => {
 
   if (isLoading) return <div className="h-screen w-screen bg-black" />;
 
-  // --- The Guarded Router ---
-  // This ensures Taskbar/Shell code ONLY executes during 'desktop' state
+  // Conditional rendering: ensures taskbar and shell logic only execute during desktop system state.
+  // This guard prevents shell-related code from executing during boot or lock screen phases.
   switch (currentScreen) {
     case 'loader':
       return <Windows11Loader onComplete={handleLoaderComplete} />;

@@ -49,7 +49,6 @@ export const projects = [
       role: "Full-Stack Integration",
       duration: "Ongoing",
       highlights: "Engineered an advanced UI architecture using a familiar desktop metaphor.",
-    //   image: EtmaeImg,
       video: "https://samplelib.com/lib/preview/mp4/sample-5s.mp4",
       heroMediaType: "video"
     }

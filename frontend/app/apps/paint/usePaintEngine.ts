@@ -1,5 +1,4 @@
 import { useRef, useEffect, useState } from 'react';
-import { drawManifesto } from './manifesto';
 import { usePaintStore } from './store';
 import type { ShapeType, OutlineType } from './constants';
 
@@ -18,7 +17,7 @@ const usePaintEngine = (onReset: () => void) => {
     canvas.width = 1152;
     canvas.height = 648;
     const ctx = canvas.getContext('2d');
-    if (ctx) drawManifesto(ctx, canvas.width, canvas.height);
+    
   }, []);
 
   const getCoords = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -189,7 +188,7 @@ const usePaintEngine = (onReset: () => void) => {
     resetCanvas: () => {
       const ctx = canvasRef.current?.getContext('2d');
       if (ctx && canvasRef.current) {
-        drawManifesto(ctx, canvasRef.current.width, canvasRef.current.height);
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         onReset();
       }
     },

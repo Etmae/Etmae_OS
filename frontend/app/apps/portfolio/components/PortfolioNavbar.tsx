@@ -144,7 +144,7 @@ const ThemeToggle: React.FC<{
   <button
     onClick={onToggle}
     className={cn(
-      // FIX 3: shrink-0 ensures this button never gets squeezed out of the pill
+      // The shrink-0 utility prevents this button from being compressed within the navigation pill layout.
       "hidden md:flex items-center justify-center w-9 h-9 rounded-full transition-colors duration-150 shrink-0",
       theme === "dark"
         ? "text-white hover:bg-white/10"
@@ -200,22 +200,22 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
     setScrolled(latest > 80);
   });
 
-  // ── Animated pill geometry ───────────────────────────────────────────────
-  // FIX 2: navWidth shrink target uses clamp() so the pill never gets so
-  // narrow that logo + links + toggle overflow it.
-  //   - Mobile/tablet: 100% → 90%  (logo + hamburger, safe at any width)
-  //   - Desktop: 100% → clamp(520px, 60%, 100%)  (520px is the minimum that
-  //     comfortably fits logo ~56px + 4 links ~280px + toggle ~36px + padding)
-  // navY and navRadius are unchanged — the animation feel is identical.
+  // Navigation pill animation behavior: width, vertical offset, and border radius animate on scroll.
+  // The navWidth uses CSS clamp() to maintain minimum width constraints and prevent content overflow.
+  // Mobile/tablet: animates from 100% to 90% (accommodates logo and hamburger menu)
+  // Desktop (1024px+): animates from 100% to clamp(520px, 60%, 100%) where 520px is the minimum width
+  // required to fit logo (~56px), navigation links (~280px), theme toggle (~36px), and padding.
+  // The vertical position (navY) and border radius (navRadius) remain unchanged during animation
+  // to maintain consistent visual feel.
   const navWidth = useTransform(scrollY, [0, 120], ["100%", "clamp(520px, 60%, 100%)"]);
   const navY = useTransform(scrollY, [0, 120], [0, 16]);
   const navRadius = useTransform(scrollY, [0, 120], [0, 40]);
 
-  // ── Mobile menu state ───────────────────────────────────────────────────
+  // Mobile menu state with responsive breakpoint at 1024px.
+  // Breakpoint was increased from 768px to 1024px to correctly handle iPad landscape mode (768–1023px).
+  // This ensures the hamburger menu is used for better UX when the viewport width cannot
+  // comfortably accommodate all navigation links in the animated pill.
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // FIX 4: threshold raised from 768px to 1024px so iPad landscape (768–1023px)
-  // gets the hamburger menu instead of trying to fit all nav links in a narrow
-  // pill. The desktop layout (links visible) only kicks in at 1024px+.
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -301,7 +301,8 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
           }}
           transition={{ type: "spring", stiffness: 200, damping: 40 }}
           className={cn(
-            // FIX 3: min-w-0 prevents flex children from overflowing the pill.
+            // min-w-0 is applied to allow flex children to shrink below their content width,
+            // preventing overflow within the constrained navigation pill container.
             // Without it, a flexbox row can exceed its container's width.
             "relative flex items-center justify-between px-6 md:px-10 py-4 transition-colors duration-150 min-w-0",
             scrolled ? glassColor + " border" : "bg-transparent border-transparent"

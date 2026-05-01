@@ -6,11 +6,14 @@ interface SystemFooterProps {
   theme?: 'dark' | 'light';
   // Added scrollContainer to handle the custom scrolling div
   scrollContainer?: React.RefObject<HTMLDivElement | null>;
+  // Handles shell-based client-side routing
+  onNavigate?: (section: 'home' | 'about' | 'works' | 'contact' | 'project-detail') => void;
 }
 
 export const SystemFooter: React.FC<SystemFooterProps> = ({ 
   theme = 'dark', 
-  scrollContainer 
+  scrollContainer,
+  onNavigate 
 }) => {
   const isDark = theme === 'dark';
 
@@ -52,18 +55,45 @@ export const SystemFooter: React.FC<SystemFooterProps> = ({
           <div className="space-y-4">
             <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${textSecondary}`}>Navigation</span>
             <ul className={`text-sm space-y-2 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-              <li><a href="#" className="hover:text-green-500 transition-colors">Work</a></li>
-              <li><a href="#" className="hover:text-green-500 transition-colors">Lab</a></li>
-              <li><a href="#" className="hover:text-green-500 transition-colors">About</a></li>
+              <li>
+                {/* Routes to works section natively */}
+                <a 
+                  href="#works" 
+                  onClick={(e) => { e.preventDefault(); onNavigate?.('works'); }} 
+                  className="hover:text-green-500 transition-colors"
+                >
+                  Work
+                </a>
+              </li>
+              <li>
+                {/* Defaults to works section as lab fallback */}
+                <a 
+                  href="#lab" 
+                  onClick={(e) => { e.preventDefault(); onNavigate?.('works'); }} 
+                  className="hover:text-green-500 transition-colors"
+                >
+                  Lab
+                </a>
+              </li>
+              <li>
+                {/* Routes to about section natively */}
+                <a 
+                  href="#about" 
+                  onClick={(e) => { e.preventDefault(); onNavigate?.('about'); }} 
+                  className="hover:text-green-500 transition-colors"
+                >
+                  About
+                </a>
+              </li>
             </ul>
           </div>
 
           <div className="space-y-4">
             <span className={`text-[10px] font-mono uppercase tracking-[0.2em] ${textSecondary}`}>Socials</span>
             <ul className={`text-sm space-y-2 ${isDark ? 'text-zinc-300' : 'text-zinc-700'}`}>
-              <li><a href="#" className="hover:text-green-500 transition-colors">GitHub</a></li>
-              <li><a href="#" className="hover:text-green-500 transition-colors">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-green-500 transition-colors">Read.cv</a></li>
+              <li><a href="https://github.com/Etmae" className="hover:text-green-500 transition-colors">GitHub</a></li>
+              <li><a href="https://www.linkedin.com/in/erioluwa-olujimi-a38b42237/" className="hover:text-green-500 transition-colors">LinkedIn</a></li>
+              <li><a href="https://x.com/Ttmw53820" className="hover:text-green-500 transition-colors">Instagram</a></li>
             </ul>
           </div>
 
