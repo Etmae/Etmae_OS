@@ -8,72 +8,78 @@ import {
 } from 'framer-motion';
 import {
   Cpu, Music, Disc, ArrowLeft, ArrowRight,
-  ExternalLink, Plus, Users, Download, ShieldCheck, Github, Linkedin, Twitter, Instagram, Mail
+  ExternalLink, Plus, Users, Download, ShieldCheck, Github, Linkedin, Twitter, Instagram, Mail, Loader2
 } from 'lucide-react';
 import { RevealOnScroll } from './components/RevealOnScroll';
 
+// Image imports
+import Cyberleo from '../../assets/img/portfolio/Cyberleo.png';
+import Adegboola from '../../assets/img/portfolio/Adegboola.png';
+import Goodluck from '../../assets/img/portfolio/Goodluck.png';
+import AboutImg from '../../assets/img/portfolio/AboutImg.png';
+
+type CircleNode =
+  | {
+      id: number;
+      name: string;
+      role: string;
+      link: string;
+      video: string;
+      image?: never;
+      avatar: string;
+      bio: string;
+      work: string;
+      tags: string[];
+    }
+  | {
+      id: number;
+      name: string;
+      role: string;
+      link: string;
+      image: string;
+      video?: never;
+      avatar: string;
+      bio: string;
+      work: string;
+      tags: string[];
+    };
+
 // --- Data ---
-const circleNodes = [
+const circleNodes: CircleNode[] = [
   {
     id: 0,
-    name: "Serhii Kirkin",
-    role: "UI/UX Architect",
-    link: "https://portfolio.serhii.com",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    avatar: "https://i.pravatar.cc/150?u=serhii",
-    tagline: "The 'Keep Building' Crooner",
-    bio: "Architecting visual systems where every pixel has a purpose. If it's not intuitive, it's not finished.",
-    work: "Visual Logic / System Design",
-    tags: ["#SystemDesign", "#LegoLogic"]
+    name: "Adegbola Michael",
+    role: "Blockchain Dev",
+    link: "https://www.linkedin.com/in/michael-adegbola-510aa6318?utm_source=share_via&utm_content=profile&utm_medium=member_android",
+    image: Adegboola,
+    avatar: Adegboola,
+    bio: "Writing smart contracts that are actually smart. Obsessed with trustless systems and zero-knowledge proofs.",
+    work: "Blockchain / Backend",
+    tags: ["#Cryptocurrency", "#SmartContracts"]
   },
   {
     id: 1,
-    name: "Alex Rivera",
-    role: "Blockchain Dev",
-    link: "https://github.com/alex-rivera",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    avatar: "https://i.pravatar.cc/150?u=alex",
-    tagline: "The Gas Fee Whisperer",
-    bio: "Writing smart contracts that are actually smart. Obsessed with trustless systems and zero-knowledge proofs.",
-    work: "Rust / Solidity / Cryptography",
-    tags: ["#Web3", "#Solidity"]
+    name: "AbdulAzeez Hibullahi CN",
+    role: "Certified Network Pentester and Security Researcher",
+    link: "https://linkedin.com/in/cyb3rle0",
+    image: Cyberleo,
+    avatar: Cyberleo,
+    bio: "Certified Network Pentester and Security Researcher with a passion for ethical hacking and cybersecurity. Skilled in identifying vulnerabilities and strengthening defenses to protect digital assets.",
+    work: "Linux/ Bug Bounty Hunting / Security",
+    tags: ["#KaliLinux", "#CTF"]
   },
   {
     id: 2,
-    name: "Jordan T.",
-    role: "Backend Architect",
-    link: "https://linkedin.com/in/jordan-t",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-    avatar: "https://i.pravatar.cc/150?u=jordan",
-    tagline: "The Memory Leak Exorcist",
-    bio: "Concurrency is a symphony, and I'm the conductor. Ensuring high-availability for the heaviest stacks.",
-    work: "Distributed Systems / Go",
-    tags: ["#Concurrency", "#GoLang"]
+    name: "Goodluck Temilolu Oyebisi ",
+    role: "Cybersecurity Analyst",
+    link: "https://www.linkedin.com/in/goodluck-oyebisi",
+    image: Goodluck,
+    avatar: Goodluck,
+    bio: "Cybersecurity analyst with a knack for threat hunting and incident response. I turn cyber chaos into order, one vulnerability at a time.",
+    work: "Cybersecurity / Ethical Hacker",
+    tags: ["#bug bounty Hunter", "#Web Pentester"]
   },
-  {
-    id: 3,
-    name: "Taylor Chen",
-    role: "Product Designer",
-    link: "https://dribbble.com/taylor-chen",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-    avatar: "https://i.pravatar.cc/150?u=taylor",
-    tagline: "The Pixel Perfectionist",
-    bio: "Designing experiences that feel as good as they look.",
-    work: "Product Design / UX",
-    tags: ["#Design", "#UX"]
-  },
-  {
-    id: 4,
-    name: "Marcus Lee",
-    role: "DevOps Engineer",
-    link: "https://linkedin.com/in/marcus-lee",
-    video: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-    avatar: "https://i.pravatar.cc/150?u=marcus",
-    tagline: "The Deployment Whisperer",
-    bio: "Automating everything that moves—and fixing what breaks.",
-    work: "CI/CD / Cloud Infrastructure",
-    tags: ["#DevOps", "#Cloud"]
-  }
+
 ];
 
 // --- Sub-Component: Circular Progress Avatar ---
@@ -149,17 +155,46 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
   const [direction, setDirection] = useState(1);
   const [panelHeight, setPanelHeight] = useState(0);
 
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const tiltX = useSpring(useTransform(mouseY, [-300, 300], [10, -10]), { stiffness: 100, damping: 20 });
-  const tiltY = useSpring(useTransform(mouseX, [-300, 300], [-10, 10]), { stiffness: 100, damping: 20 });
+  // --- Replaced useCVDownload hook with inline logic directly inside component ---
+  const [cvState, setCvState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [cvError, setCvError] = useState<string | null>(null);
 
-  const handleMouseMove = (e: { currentTarget: { getBoundingClientRect: () => any; }; clientX: number; clientY: number; }) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    mouseX.set(e.clientX - (rect.left + rect.width / 2));
-    mouseY.set(e.clientY - (rect.top + rect.height / 2));
+
+
+
+  const download = async () => {
+    if (cvState === 'loading') return;
+    setCvState('loading');
+    setCvError(null);
+  
+    try {
+      const res = await fetch('http://localhost:3000/api/cv');
+  
+      //  Check status BEFORE consuming the body
+      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  
+      // Read body ONCE as blob — no res.json() needed anymore
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+  
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Elijah-Olujimi-CV.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+  
+      // Clean up the object URL after use
+      URL.revokeObjectURL(url);
+  
+      setTimeout(() => setCvState('idle'), 2000);
+    } catch (err) {
+      console.error("Download Error:", err);
+      setCvError(err instanceof Error ? err.message : 'Download failed.');
+      setCvState('error');
+      setTimeout(() => { setCvState('idle'); setCvError(null); }, 5000);
+    }
   };
-
   useEffect(() => {
     const h = scrollContainer?.current ? scrollContainer.current.clientHeight : window.innerHeight;
     setPanelHeight(h);
@@ -170,7 +205,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
           handleManualNav((activeIndex + 1) % circleNodes.length, 1);
           return 0;
         }
-        return prev + 0.35;
+        return prev + 0.4;
       });
     }, 30);
     return () => clearInterval(timer);
@@ -192,10 +227,10 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
 
   // Social links data matching reference image style
   const socialLinks = [
-    { icon: <XIcon size={18} />, label: 'Follow on X', href: '#' },
-    { icon: <Instagram size={18} />, label: 'Follow on Instagram', href: '#' },
-    { icon: <Github size={18} />, label: 'Follow on GitHub', href: '#' },
-    { icon: <Linkedin size={18} />, label: 'Follow on LinkedIn', href: '#' },
+    { icon: <XIcon size={18} />, label: 'Elijah Olujimi', href: 'https://x.com/Ttmw53820' },
+    { icon: <Instagram size={18} />, label: 'erit_mwa', href: 'https://www.instagram.com/erit_mwa/' },
+    { icon: <Github size={18} />, label: 'Etmae', href: 'https://github.com/Etmae' },
+    { icon: <Linkedin size={18} />, label: 'Erioluwa Elijah', href: 'https://www.linkedin.com/in/erioluwa-olujimi-a38b42237/' },
   ];
 
   return (
@@ -221,9 +256,9 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
 
                     <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl -rotate-2 group-hover:rotate-0 transition-transform duration-150">
                       <img
-                        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1974"
+                        src={AboutImg}
                         alt="Elijah Olujimi"
-                        className="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale-0 group-hover:scale-110 transition-all duration-150"
+                        className="w-full h-full object-cover grayscale brightness-90 group-hover:grayscale group-hover:scale-110 transition-all duration-150"
                       />
 
                       <div className="absolute top-6 right-6 p-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-full text-green-500 shadow-2xl">
@@ -256,20 +291,15 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                   {/* Email row — separated, matching reference */}
                   <div className={`mt-3 flex items-center gap-4 px-5 py-4 rounded-2xl border ${colors.border} ${isDark ? 'text-white/50' : 'text-zinc-500'}`}>
                     <Mail size={16} className="text-green-500 shrink-0" />
-                    <span className="text-sm font-mono">elijah@signal.dev</span>
+                    <span className="text-sm font-mono">elijaholujimi060@gmail.com</span>
                   </div>
 
                   {/* Mobile CV Button */}
-                  <div className="mt-8 lg:hidden">
-                    <button className="w-full flex items-center justify-center gap-3 px-8 py-5 rounded-full bg-green-500 text-black font-mono text-[10px] font-bold tracking-[0.2em] uppercase">
-                      <Download size={18} /> Download CV
-                    </button>
-                  </div>
+
                 </div>
               </RevealOnScroll>
             </div>
 
-            {/* RIGHT: Text Content */}
             {/* RIGHT: Text Content */}
             <div className="lg:col-span-7 order-2 lg:order-2">
               <RevealOnScroll>
@@ -292,11 +322,17 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                   </p>
                 </div>
 
-                <div className="mt-20 hidden lg:block">
-                  <button className={`group flex items-center gap-4 px-10 py-5 rounded-full border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase`}>
-                    <Download size={16} className="group-hover:-translate-y-1 transition-transform" />
-                    Download Curriculum Vitae
+                <div className="mt-12 hidden lg:block">
+                  <button onClick={download} disabled={cvState === 'loading'} className={`group flex items-center gap-4 px-10 py-5 rounded-3xl border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase disabled:opacity-60 disabled:cursor-not-allowed`}>
+                    {cvState === 'loading' ? (
+                      <><Loader2 size={16} className="animate-spin" /> Downloading CV...</>
+                    ) : (
+                      <><Download size={16} className="group-hover:-translate-y-1 transition-transform" /> Download Resume</>
+                    )}
                   </button>
+                  {cvState === 'error' && cvError && (
+                    <p className="text-red-400 text-xs font-mono mt-2">{cvError}</p>
+                  )}
                 </div>
               </RevealOnScroll>
             </div>
@@ -357,7 +393,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                   <div className="absolute -inset-4 border border-green-500/10 rounded-3xl -rotate-2 group-hover:rotate-0 transition-transform duration-150" />
 
                   {/* Main image */}
-                  <div className="relative aspect-[4/5] rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl rotate-2 group-hover:rotate-0 transition-transform duration-150">
+                  <div className="relative aspect-4/5 rounded-3xl overflow-hidden bg-zinc-900 shadow-2xl rotate-2 group-hover:rotate-0 transition-transform duration-150">
                     <img
                       src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=2070"
                       alt="Playing an instrument"
@@ -395,11 +431,11 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
         </section>
 
         {/* 4. MY CIRCLE */}
-        <section onMouseMove={handleMouseMove} className={`py-24 px-6 md:px-24 border-t ${colors.border}`}>
+        <section className={`py-24 px-6 md:px-24 border-t ${colors.border}`}>
 
           {/* Section Header - Scaled down to establish context without overpowering */}
           <div className="max-w-7xl mx-auto mb-16">
-            
+
             <div className="flex items-center gap-3 mb-4">
               <Users size={16} className="text-green-500" />
               <span className={`text-xs font-mono uppercase tracking-widest ${colors.textMuted}`}>Network Sync</span>
@@ -412,7 +448,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 "Show me your friend and I would show you who you are." Meet my circle.
               </p>
             </div>
-            
+
           </div>
 
           <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 min-h-[650px]">
@@ -433,7 +469,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                       {circleNodes[activeIndex].name}
                     </h3>
                     <p className="text-lg md:text-xl text-green-500 font-medium italic">
-                      {circleNodes[activeIndex].tagline}
+
                     </p>
                   </div>
 
@@ -472,8 +508,8 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
 
                 {/* 3D Card */}
                 <motion.div
-                  style={{ perspective: '2000px', rotateX: tiltX, rotateY: tiltY }}
-                  className="w-full max-w-[380px] aspect-[9/16] relative"
+                  style={{ perspective: '2000px' }}
+                  className="w-full max-w-[380px] aspect-9/16 relative"
                 >
                   <AnimatePresence initial={false} mode="popLayout" custom={direction}>
                     <motion.div
@@ -489,17 +525,35 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                       style={{ transformStyle: 'preserve-3d', originX: 0.5 }}
                       className={`absolute inset-0 rounded-[3rem] overflow-hidden border-8 border-zinc-900 ${colors.sliderBg} shadow-2xl`}
                     >
-                      <video src={circleNodes[activeIndex].video} autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover grayscale brightness-75" />
+                      {circleNodes[activeIndex].video ? (
+                        <video
+                          src={circleNodes[activeIndex].video}
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          className="absolute inset-0 w-full h-full object-cover grayscale brightness-75"
+                        />
+                      ) : (
+                        <img
+                          src={circleNodes[activeIndex].image}
+                          alt={circleNodes[activeIndex].name}
+                          className="absolute inset-0 w-full h-full object-cover grayscale brightness-75"
+                        />
+                      )}
 
                       {/* Top Story Bar */}
                       <div className="absolute top-6 left-6 right-6 z-50 flex gap-1.5">
                         <div className="h-0.5 flex-1 bg-white/20 rounded-full overflow-hidden">
-                          <motion.div key={activeIndex} initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 7.5, ease: 'linear' }} className="h-full bg-white origin-left" />
+                          <motion.div
+                            className="h-full bg-green-500 origin-left"
+                            style={{ width: `${progress}%` }}
+                          />
                         </div>
                       </div>
 
                       {/* Bottom Details Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent" />
                       <div className="absolute bottom-6 left-6 right-6 flex items-center justify-between z-10">
                         <div className="flex items-center gap-3">
                           <img src={circleNodes[activeIndex].avatar} className="w-10 h-10 rounded-full border border-white/30" alt="" />
@@ -525,7 +579,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
               </div>
 
               {/* Controls */}
-              <div className="flex items-center justify-between mt-8 w-full max-w-[380px] lg:mr-[4.5rem]">
+              <div className="flex items-center justify-between mt-8 w-full max-w-[380px] lg:mr-18">
                 <div className="flex gap-2">
                   <button onClick={() => handleManualNav((activeIndex - 1 + circleNodes.length) % circleNodes.length, -1)} className={`p-4 rounded-full border ${colors.border} ${colors.text} hover:bg-green-500 hover:text-black hover:border-green-500 transition-all`}>
                     <ArrowLeft size={16} />

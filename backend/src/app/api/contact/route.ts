@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/libs/supabase/server";
 import { corsHeaders, handleCors } from "@/libs/cors";
 
+
+
 // ─── Shared constants ────────────────────────────────────────────────────────
 
 const ALLOWED_MIME_TYPES = [
@@ -21,12 +23,12 @@ const ALLOWED_SERVICES = [
 ];
 
 const ALLOWED_BUDGETS = [
-  "$5k+",
-  "$10k+",
-  "$25k+",
-  "$50k+",
-  "Enterprise",
-  "TBD",
+  '₦200k+',
+  '₦300k+',
+  '₦500k+',
+  '₦1m+',
+  'Enterprise',
+  'TBD',
 ];
 
 const MAX_FILE_SIZE  = 5 * 1024 * 1024; // 5 MB
@@ -63,6 +65,7 @@ function bad(message: string, status = 400) {
 }
 
 // ─── Route handlers ──────────────────────────────────────────────────────────
+
 
 export async function OPTIONS() {
   return handleCors();

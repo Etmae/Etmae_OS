@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Wifi, Volume2, Battery, LayoutGrid, Maximize2, Minimize2, FileText, Clock, Shield } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
+import {
+  Wifi, Volume2, Battery,
+  Maximize2, Minimize2, FileText, Clock,
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 // Store & Data Imports
@@ -16,361 +19,377 @@ import WidgetsBoard from '../desktop/WidgetsBoard';
 import QuickSettings from '../system/QuickSettings';
 import NotificationCenter from '../desktop/NotificationCenter';
 import Windows11Loader from '../common/Windows11Loader';
+import TaskbarThumbnailPreview from './TaskbarThunbnailPreview';
 import { useViewport } from '../../hooks/useViewport';
 
-// --- Types ---
+// ─────────────────────────────────────────────────────────────────────────────
+// TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+
 interface TaskbarProps {
   onLock?: () => void;
   onRestart?: () => void;
   onShutdown?: () => void;
 }
 
-// --- Sub-Components ---
+interface PreviewState {
+  appId: string;
+  anchorRect: DOMRect;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TASKBAR APP BUTTON
+// ─────────────────────────────────────────────────────────────────────────────
+
 const TaskbarApp: React.FC<{
-  icon: React.ReactNode;
+  icon: any;
   label: string;
+  appId: string;
   isOpen: boolean;
   isFocused: boolean;
   onClick: () => void;
-}> = ({ icon, label, isOpen, isFocused, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`relative p-2 rounded-md transition-all duration-200 group ${
-      isFocused ? 'bg-white/15' : 'hover:bg-white/8'
-    }`}
-    title={label}
-  >
-    <div className={`transition-transform duration-200 ${isFocused ? 'scale-110' : 'scale-100'}`}>
-      {icon}
-    </div>
-    {isOpen && (
-      <div
-        className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full transition-all duration-300 ${
-          isFocused ? 'w-4 h-1 bg-[#0078d4]' : 'w-1 h-1 bg-white/50'
-        }`}
-      />
-    )}
-  </button>
-);
+  onHoverEnter: (appId: string, rect: DOMRect) => void;
+  onHoverLeave: () => void;
+}> = ({ icon, label, appId, isOpen, isFocused, onClick, onHoverEnter, onHoverLeave }) => {
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const renderIcon = () => {
+    if (typeof icon === 'string') return <img src={icon} alt="" className="w-6 h-6 object-contain" />;
+    if (React.isValidElement(icon)) return icon;
+    return React.createElement(icon, { size: 24, className: 'w-6 h-6' });
+  };
+
+  const handleMouseEnter = () => {
+    /* Only open the preview when this app actually has running windows */
+    if (!isOpen || !btnRef.current) return;
+    onHoverEnter(appId, btnRef.current.getBoundingClientRect());
+  };
+
+  return (
+    <button
+      ref={btnRef}
+      onClick={onClick}
+      title={label}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={onHoverLeave}
+      className={`relative p-2 rounded-md transition-all group ${
+        isFocused ? 'bg-white/15' : 'hover:bg-white/8'
+      }`}
+    >
+      <div className={`transition-transform duration-200 ${isFocused ? 'scale-90' : 'scale-100 group-active:scale-75'}`}>
+        {renderIcon()}
+      </div>
+
+      {isOpen && (
+        <motion.div
+          layoutId={`taskbar-indicator-${appId}`}
+          className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 rounded-full bg-[#0078d4]"
+          animate={{ width: isFocused ? 16 : 6, height: 3 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+        />
+      )}
+    </button>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WINDOWS LOGO
+// ─────────────────────────────────────────────────────────────────────────────
 
 const WindowsLogo = ({ active }: { active: boolean }) => (
   <div className="w-5 h-5 grid grid-cols-2 gap-0.5">
     {[1, 2, 3, 4].map(i => (
-      <div 
-        key={i} 
-        className={`rounded-sm transition-colors duration-300 ${active ? 'bg-[#00a3ee]' : 'bg-[#0078d4]'}`} 
-      />
+      <div key={i} className={`rounded-sm transition-colors ${active ? 'bg-[#00a3ee]' : 'bg-[#0078d4]'}`} />
     ))}
   </div>
 );
 
-// --- Main Component ---
-const Taskbar: React.FC<TaskbarProps> = ({ onLock, onRestart, onShutdown }) => {
-  // UI State
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [widgetsOpen, setWidgetsOpen] = useState(false);
-  const [startMenuOpen, setStartMenuOpen] = useState(false);
-  const [powerMenuOpen, setPowerMenuOpen] = useState(false);
-  
-  // Settings & System State
-  const [systemAction, setSystemAction] = useState<'none' | 'shutdown' | 'restart'>('none');
-  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
-  const [brightness, setBrightness] = useState(100);
-  const [volume, setVolume] = useState(100);
+// ─────────────────────────────────────────────────────────────────────────────
+// TASKBAR
+// ─────────────────────────────────────────────────────────────────────────────
 
-  const navigate = useNavigate();
+const Taskbar: React.FC<TaskbarProps> = ({ onLock, onRestart, onShutdown }) => {
+  const [currentTime, setCurrentTime]             = useState(new Date());
+  const [quickSettingsOpen, setQuickSettingsOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen]   = useState(false);
+  const [widgetsOpen, setWidgetsOpen]             = useState(false);
+  const [startMenuOpen, setStartMenuOpen]         = useState(false);
+  const [powerMenuOpen, setPowerMenuOpen]         = useState(false);
+  const [systemAction, setSystemAction]           = useState<'none' | 'shutdown' | 'restart'>('none');
+  const [isFullscreen, setIsFullscreen]           = useState(!!document.fullscreenElement);
+  const [brightness, setBrightness]               = useState(100);
+  const [volume, setVolume]                       = useState(100);
+  const [preview, setPreview]                     = useState<PreviewState | null>(null);
+
+  /**
+   * Shared dismiss timer for the thumbnail preview.
+   * Passed into TaskbarThumbnailPreview so the panel itself can cancel it
+   * when the cursor re-enters — preventing premature dismissal.
+   */
+  const previewDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /**
+   * Dismiss timer for the WidgetsBoard.
+   * Using a ref (not state) prevents a re-render every time we set/clear it.
+   */
+  const widgetDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const navigate    = useNavigate();
   const { isMobile } = useViewport();
-  const widgetHoverTimeout = useRef<number | null>(null);
-  
-  // Window Store logic
+
   const { windows, windowOrder, openWindow, focusWindow, toggleMinimize } = useWindowStore();
   const focusedWindowId = windowOrder[windowOrder.length - 1];
 
-  // Mock data for Recommended section in Start Menu
   const recentFiles = [
-    { name: 'Project_Proposal.docx', time: '17m ago', icon: <FileText size={16} className="text-blue-400" /> },
-    { name: 'System_Architecture.png', time: '2h ago', icon: <Shield size={16} className="text-purple-400" /> },
-    { name: 'Meeting_Notes.txt', time: 'Yesterday', icon: <Clock size={16} className="text-gray-400" /> },
+    { name: 'Project_Proposal.docx', time: '17m ago',  icon: <FileText size={16} className="text-blue-400" /> },
+    { name: 'Resume.pdf',            time: 'Yesterday', icon: <Clock    size={16} className="text-gray-400" /> },
   ];
 
+  // ── Timers & listeners ────────────────────────────────────────────────────
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener('fullscreenchange', handleFsChange);
-    return () => {
-      clearInterval(timer);
-      document.removeEventListener('fullscreenchange', handleFsChange);
-    };
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => { clearInterval(timer); document.removeEventListener('fullscreenchange', onFsChange); };
   }, []);
 
-  // --- Core Handlers ---
+  // ── App click ─────────────────────────────────────────────────────────────
   const handleAppClick = (appId: string) => {
-    const openInstances = Object.values(windows).filter(w => w.appId === appId);
-    if (openInstances.length === 0) {
+    const instances = Object.values(windows).filter(w => w.appId === appId);
+    if (instances.length === 0) {
       openWindow(appId);
     } else {
-      const target = openInstances[0];
-      if (target.id === focusedWindowId && !target.isMinimized) {
-        toggleMinimize(target.id);
-      } else {
-        focusWindow(target.id);
-      }
+      const target = instances[0];
+      target.id === focusedWindowId && !target.isMinimized
+        ? toggleMinimize(target.id)
+        : focusWindow(target.id);
     }
   };
 
+  // ── Power ─────────────────────────────────────────────────────────────────
   const handlePowerAction = (type: 'shutdown' | 'restart') => {
     setSystemAction(type);
     setStartMenuOpen(false);
-    setPowerMenuOpen(false);
-    setTimeout(() => {
-      if (type === 'shutdown') onShutdown?.();
-      else onRestart?.();
-    }, 4000);
+    setTimeout(() => { type === 'shutdown' ? onShutdown?.() : onRestart?.(); }, 4000);
   };
 
-  const handleLockAction = () => {
-    setStartMenuOpen(false);
-    setPowerMenuOpen(false);
-    onLock ? onLock() : navigate('/signin');
+  const toggleFullscreen = () => isFullscreen ? exitFullScreen() : enterFullScreen();
+
+  // ── Thumbnail preview hover handlers ─────────────────────────────────────
+
+  /**
+   * Icon mouse-enter: cancel any pending dismiss and show the preview.
+   */
+  const handleIconHoverEnter = (appId: string, rect: DOMRect) => {
+    if (previewDismissTimer.current) {
+      clearTimeout(previewDismissTimer.current);
+      previewDismissTimer.current = null;
+    }
+    setPreview({ appId, anchorRect: rect });
   };
 
-  const isSystemOverlayActive = systemAction !== 'none';
+  /**
+   * Icon mouse-leave: start a 400 ms dismiss timer.
+   * The preview component will cancel this if the cursor enters the panel.
+   */
+  const handleIconHoverLeave = () => {
+    previewDismissTimer.current = setTimeout(() => setPreview(null), 400);
+  };
 
-  // Derive dynamic running apps that are NOT pinned in the taskbar
-  const pinnedAppIds = new Set(taskbarApps.map((a) => a.appId));
-  const runningAppIds = Array.from(
-    new Set(Object.values(windows).map((w) => w.appId))
-  );
-  const dynamicRunningApps = runningAppIds
-    .filter((appId) => !pinnedAppIds.has(appId))
-    .map((appId) => {
-      const config = APP_REGISTRY[appId];
-      const iconNode = config?.icon
-        ? // Registry icon is a string path – render as img
-          (<img src={config.icon} alt={config.title} className="w-8 h-8 object-contain" />)
-        : null;
-      return {
-        appId,
-        label: config?.title ?? appId,
-        icon: iconNode,
-      };
+  /** Final dismissal — called when the cursor fully leaves the preview panel. */
+  const handlePreviewDismiss = () => {
+    if (previewDismissTimer.current) clearTimeout(previewDismissTimer.current);
+    setPreview(null);
+  };
+
+  // ── Widgets board hover handlers ──────────────────────────────────────────
+
+  /**
+   * Cancel the widgets dismiss timer and open the board.
+   * Both the taskbar button and WidgetsBoard's keepWidgetsOpen call this.
+   */
+  const handleWidgetsEnter = () => {
+    if (widgetDismissTimer.current) {
+      clearTimeout(widgetDismissTimer.current);
+      widgetDismissTimer.current = null;
+    }
+    setWidgetsOpen(true);
+  };
+
+  /**
+   * Schedule the widgets board to close after 600 ms.
+   * The longer delay (vs 300 ms previously) gives the user time to move from
+   * the taskbar button into the panel and interact with widgets before it closes.
+   * Both the taskbar button and WidgetsBoard's scheduleWidgetsClose call this.
+   */
+  const handleWidgetsLeave = () => {
+    widgetDismissTimer.current = setTimeout(() => setWidgetsOpen(false), 600);
+  };
+
+  // ── Derived lists ─────────────────────────────────────────────────────────
+  const pinnedAppIds = new Set(taskbarApps.map(a => a.appId));
+  const runningApps  = Array.from(new Set(Object.values(windows).map(w => w.appId)))
+    .filter(id => !pinnedAppIds.has(id))
+    .map(id => {
+      const config = APP_REGISTRY[id];
+      return config ? { appId: id, label: config.title, icon: config.icon } : null;
     })
-    .filter((app) => app.icon); // keep only those we can render
+    .filter(Boolean);
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER
+  // ─────────────────────────────────────────────────────────────────────────
   return (
     <>
+      {/* System action overlay */}
       <AnimatePresence>
-        {isSystemOverlayActive && (
+        {systemAction !== 'none' && (
           <div className="fixed inset-0 z-10000 bg-black">
-             <Windows11Loader mode={systemAction} duration={4000} />
+            <Windows11Loader mode={systemAction} duration={4000} />
           </div>
         )}
       </AnimatePresence>
 
-      {!isSystemOverlayActive && (
-        <>
-          <QuickSettings 
-            quickSettingsOpen={quickSettingsOpen} setQuickSettingsOpen={setQuickSettingsOpen} 
-            brightness={brightness} setBrightness={setBrightness} 
-            volume={volume} setVolume={setVolume} 
-          />
-          
-          <NotificationCenter isOpen={notificationOpen} onClose={() => setNotificationOpen(false)} />
-
-          <WidgetsBoard
-            widgetsOpen={widgetsOpen}
-            keepWidgetsOpen={() => {
-              if (widgetHoverTimeout.current) window.clearTimeout(widgetHoverTimeout.current);
-              setWidgetsOpen(true);
-            }}
-            scheduleWidgetsClose={() => {
-              widgetHoverTimeout.current = window.setTimeout(() => setWidgetsOpen(false), 200);
-            }}
-          />
-
-          <StartMenu 
-            isOpen={startMenuOpen} 
-            onClose={() => { setStartMenuOpen(false); setPowerMenuOpen(false); }} 
-            desktopIcons={taskbarApps} // Maps taskbar apps to Start Menu pinned section
-            recentFiles={recentFiles}
-            powerMenuOpen={powerMenuOpen}
-            setPowerMenuOpen={setPowerMenuOpen}
-            handleShutdown={() => handlePowerAction('shutdown')}
-            handleRestart={() => handlePowerAction('restart')}
-            handleLock={handleLockAction}
-            onAppClick={(appId) => handleAppClick(appId)} // Ensures Start Menu apps actually open
-          />
-        </>
+      {/* Widgets board — desktop only */}
+      {!isMobile && (
+        <WidgetsBoard
+          widgetsOpen={widgetsOpen}
+          keepWidgetsOpen={handleWidgetsEnter}
+          scheduleWidgetsClose={handleWidgetsLeave}
+        />
       )}
 
-      <footer 
-        className={`fixed bottom-0 left-0 right-0 z-9999 px-0 pb-0.5 select-none transition-opacity duration-500 ${
-          isSystemOverlayActive ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`} 
-        data-taskbar
+      <StartMenu
+        isOpen={startMenuOpen}
+        onClose={() => { setStartMenuOpen(false); setPowerMenuOpen(false); }}
+        desktopIcons={taskbarApps}
+        recentFiles={recentFiles}
+        powerMenuOpen={powerMenuOpen}
+        setPowerMenuOpen={setPowerMenuOpen}
+        handleShutdown={() => handlePowerAction('shutdown')}
+        handleRestart={() => handlePowerAction('restart')}
+        handleLock={onLock || (() => navigate('/signin'))}
+        onAppClick={handleAppClick}
+      />
+
+      <QuickSettings
+        quickSettingsOpen={quickSettingsOpen}
+        setQuickSettingsOpen={setQuickSettingsOpen}
+        brightness={brightness}
+        setBrightness={setBrightness}
+        volume={volume}
+        setVolume={setVolume}
+      />
+
+      <NotificationCenter isOpen={notificationOpen} onClose={() => setNotificationOpen(false)} />
+
+      {/* Thumbnail preview — desktop only */}
+      <AnimatePresence>
+        {preview && !isMobile && (
+          <TaskbarThumbnailPreview
+            key={preview.appId}
+            appId={preview.appId}
+            anchorRect={preview.anchorRect}
+            dismissTimerRef={previewDismissTimer}
+            onDismiss={handlePreviewDismiss}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Taskbar footer ── */}
+      <footer
+        className="fixed bottom-0 left-0 right-0 z-[9999] px-0 pb-0.5 select-none"
+        style={{
+          background:    'rgba(32, 32, 32, 0.75)',
+          backdropFilter:'blur(20px) saturate(180%)',
+          borderTop:     '1px solid rgba(255, 255, 255, 0.08)',
+          height:        '48px',
+        }}
       >
-        <div className="px-3 py-2 flex items-center justify-between"
-          style={{
-            background: 'rgba(30, 30, 30, 0.85)',
-            backdropFilter: 'blur(30px) saturate(150%)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            height: '48px',
-          }}
-        >
-          {isMobile ? (
-            <div className="flex items-center justify-between w-full">
-              {/* Mobile: Start button */}
-              <div className="flex items-center">
-                <button
-                  onClick={() => { setStartMenuOpen(!startMenuOpen); setPowerMenuOpen(false); }}
-                  className={`p-2 rounded-lg transition-all ${startMenuOpen ? 'bg-white/15' : 'hover:bg-white/8'}`}
-                >
-                  <WindowsLogo active={startMenuOpen} />
-                </button>
-              </div>
+        <div className="relative w-full h-full flex items-center justify-center px-2">
 
-              {/* Mobile: a few primary apps + any running apps */}
-              <div className="flex items-center gap-1">
-                {taskbarApps.slice(0, 3).map((app) => {
-                  const instances = Object.values(windows).filter(w => w.appId === app.appId);
-                  const isOpen = instances.length > 0;
-                  const isFocused = isOpen && instances.some(w => w.id === focusedWindowId);
-
-                  return (
-                    <TaskbarApp
-                      key={app.appId}
-                      icon={app.icon}
-                      label={app.label}
-                      isOpen={isOpen}
-                      isFocused={isFocused}
-                      onClick={() => handleAppClick(app.appId)}
-                    />
-                  );
-                })}
-
-                {dynamicRunningApps.map((app) => {
-                  const instances = Object.values(windows).filter(w => w.appId === app.appId);
-                  const isOpen = instances.length > 0;
-                  const isFocused = isOpen && instances.some(w => w.id === focusedWindowId);
-
-                  return (
-                    <TaskbarApp
-                      key={app.appId}
-                      icon={app.icon}
-                      label={app.label}
-                      isOpen={isOpen}
-                      isFocused={isFocused}
-                      onClick={() => handleAppClick(app.appId)}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Mobile: condensed system pill */}
-              <div className="flex items-center">
-                <button
-                  onClick={() => setQuickSettingsOpen(!quickSettingsOpen)}
-                  className={`px-2 py-1 rounded-full text-[10px] flex items-center gap-1 ${quickSettingsOpen ? 'bg-white/20' : 'bg-white/10 hover:bg-white/20'} text-white/80`}
-                >
-                  <Wifi size={12} />
-                  <Battery size={12} />
-                </button>
+          {/* LEFT — widgets / weather button */}
+          {!isMobile && (
+            <div className="absolute left-2 h-full flex items-center">
+              <div
+                className={`flex items-center gap-2 px-2 py-1 rounded-md transition-colors cursor-default ${
+                  widgetsOpen ? 'bg-white/10' : 'hover:bg-white/10'
+                }`}
+                onMouseEnter={handleWidgetsEnter}
+                onMouseLeave={handleWidgetsLeave}
+                onClick={() => setWidgetsOpen(v => !v)}
+              >
+                <div className="text-xl leading-none drop-shadow-md">🌤️</div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[11px] font-medium text-white leading-none">24°C</span>
+                  <span className="text-[10px] text-gray-300 leading-none mt-0.5">Mostly Sunny</span>
+                </div>
               </div>
             </div>
-          ) : (
-            <>
-              {/* Left: Widgets */}
-              <div className="flex items-center w-40">
-                <button 
-                  onClick={() => setWidgetsOpen(!widgetsOpen)}
-                  className={`p-2 rounded-lg transition-all ${widgetsOpen ? 'bg-white/15' : 'hover:bg-white/8'}`}
-                >
-                  <LayoutGrid size={20} className="text-white/80" />
-                </button>
-              </div>
-
-              {/* Center: Start & Apps */}
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => { setStartMenuOpen(!startMenuOpen); setPowerMenuOpen(false); }}
-                  className={`p-2 rounded-lg transition-all ${startMenuOpen ? 'bg-white/15' : 'hover:bg-white/8'}`}
-                >
-                  <WindowsLogo active={startMenuOpen} />
-                </button>
-
-                <div className="w-px h-6 bg-white/10 mx-1" />
-
-                {taskbarApps.map((app) => {
-                  const instances = Object.values(windows).filter(w => w.appId === app.appId);
-                  const isOpen = instances.length > 0;
-                  const isFocused = isOpen && instances.some(w => w.id === focusedWindowId);
-
-                  return (
-                    <TaskbarApp
-                      key={app.appId}
-                      icon={app.icon}
-                      label={app.label}
-                      isOpen={isOpen}
-                      isFocused={isFocused}
-                      onClick={() => handleAppClick(app.appId)}
-                    />
-                  );
-                })}
-
-                {/* Dynamic running apps that are not pinned */}
-                {dynamicRunningApps.map((app) => {
-                  const instances = Object.values(windows).filter(w => w.appId === app.appId);
-                  const isOpen = instances.length > 0;
-                  const isFocused = isOpen && instances.some(w => w.id === focusedWindowId);
-
-                  return (
-                    <TaskbarApp
-                      key={app.appId}
-                      icon={app.icon}
-                      label={app.label}
-                      isOpen={isOpen}
-                      isFocused={isFocused}
-                      onClick={() => handleAppClick(app.appId)}
-                    />
-                  );
-                })}
-              </div>
-
-              {/* Right: System Tray */}
-              <div className="flex items-center gap-1 w-40 justify-end">
-                <button 
-                  onClick={() => (!isFullscreen ? enterFullScreen() : exitFullScreen())}
-                  className="p-2 hover:bg-white/10 rounded-md transition-colors text-white/70 hover:text-white"
-                >
-                  {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-                </button>
-
-                <div className="w-px h-6 bg-white/10 mx-0.5" />
-
-                <button 
-                  onClick={() => setQuickSettingsOpen(!quickSettingsOpen)}
-                  className={`flex items-center px-2 py-1 rounded-md transition-colors gap-2 ${quickSettingsOpen ? 'bg-white/15' : 'hover:bg-white/10'}`}
-                >
-                  <Wifi size={14} className="text-white/80" />
-                  <Volume2 size={14} className="text-white/80" />
-                  <Battery size={14} className="text-white/80" />
-                </button>
-
-                <button 
-                  onClick={() => setNotificationOpen(!notificationOpen)}
-                  className={`px-2 py-1 rounded-md transition-colors text-right ${notificationOpen ? 'bg-white/15' : 'hover:bg-white/10'}`}
-                >
-                  <div className="text-white text-[11px] font-sans leading-tight">
-                    <div>{formatTime(currentTime)}</div>
-                    <div className="opacity-60 text-[10px]">{formatDate(currentTime)}</div>
-                  </div>
-                </button>
-                <div className="w-0.5 h-full ml-1 border-l border-white/10 hover:bg-white/10 transition-colors cursor-pointer" />
-              </div>
-            </>
           )}
+
+          {/* CENTRE — start button + app icons */}
+          <div className="flex items-center gap-1 z-10">
+            <button
+              onClick={() => setStartMenuOpen(v => !v)}
+              className="p-2 rounded-lg hover:bg-white/8 transition-all"
+            >
+              <WindowsLogo active={startMenuOpen} />
+            </button>
+
+            <div className="w-px h-6 bg-white/10 mx-1" />
+
+            {[...taskbarApps, ...(runningApps as any[])].map((app: any) => {
+              const instances = Object.values(windows).filter(w => w.appId === app.appId);
+              const isOpen    = instances.length > 0;
+              const isFocused = isOpen && instances.some(w => w.id === focusedWindowId);
+
+              return (
+                <TaskbarApp
+                  key={app.appId}
+                  appId={app.appId}
+                  icon={app.icon}
+                  label={app.label}
+                  isOpen={isOpen}
+                  isFocused={isFocused}
+                  onClick={() => handleAppClick(app.appId)}
+                  onHoverEnter={handleIconHoverEnter}
+                  onHoverLeave={handleIconHoverLeave}
+                />
+              );
+            })}
+          </div>
+
+          {/* RIGHT — fullscreen + system tray */}
+          <div className="absolute right-2 h-full flex items-center gap-1">
+            <button
+              onClick={toggleFullscreen}
+              className="p-2 rounded-md hover:bg-white/10 text-white/80 transition-colors hidden sm:flex"
+              title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            >
+              {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+            </button>
+
+            <div
+              className={`flex items-center px-2 py-1.5 rounded-md transition-colors gap-2 cursor-pointer ${
+                quickSettingsOpen ? 'bg-white/15' : 'hover:bg-white/10'
+              }`}
+              onClick={() => setQuickSettingsOpen(v => !v)}
+            >
+              <Wifi    size={14} className="text-white/80" />
+              <Volume2 size={14} className="text-white/80" />
+              <Battery size={14} className="text-white/80" />
+            </div>
+
+            <div
+              className="px-2 py-1 text-right text-white text-[11px] hover:bg-white/10 rounded-md cursor-pointer"
+              onClick={() => setNotificationOpen(v => !v)}
+            >
+              <div>{formatTime(currentTime)}</div>
+              <div className="opacity-60 text-[10px]">{formatDate(currentTime)}</div>
+            </div>
+          </div>
+
         </div>
       </footer>
     </>

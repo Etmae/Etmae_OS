@@ -50,6 +50,17 @@ const INITIAL_DATA: ContactFormData = {
   file: null,
 };
 
+
+const budgetOptions = [
+  '₦200k+',
+  '₦300k+',
+  '₦500k+',
+  '₦1m+',
+  'Enterprise',
+  'TBD',
+];
+
+
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -155,24 +166,35 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       formData.append('service', data.service);
       formData.append('budget', data.budget);
       formData.append('message', data.message);
-      if (data.file) formData.append('file', data.file);
 
-      const response = await fetch(`${API_BASE}`, {
+      if (data.file) {
+        formData.append('file', data.file);
+      }
+
+      const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
+        mode: 'cors',
+        // Note: Content-Type is omitted to allow the browser to set the boundary for FormData
         body: formData,
       });
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error ?? 'Something went wrong. Please try again.');
+      // Handle potential empty responses or non-JSON errors
+      const contentType = response.headers.get("content-type");
+      let result;
+      if (contentType && contentType.includes("application/json")) {
+        result = await response.json();
+      } else {
+        result = { error: await response.text() };
       }
 
-      // Preserve the name for the success screen BEFORE resetting form state.
-      // If we reset data first, SuccessTransmission receives name="" because
-      // both state updates would be batched in the same render.
+      if (!response.ok) {
+        throw new Error(result.error || `Error: ${response.status}`);
+      }
+
       setSubmittedName(data.name);
       setData(INITIAL_DATA);
+
+      // Navigate to success state
       safeSetStep(() => 5);
 
     } catch (err) {
@@ -194,50 +216,27 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       animate={{ opacity: 1 }}
       className={`h-dvh w-full flex flex-col justify-between px-4 pt-12 pb-24 md:px-12 md:pt-16 md:pb-32 ${colors.bg} relative overflow-hidden selection:bg-green-500/30 transition-colors duration-150`}
     >
-      
-      {/* ── Side navigation ─────────────────────────────────────────────── */}
-      {step < 5 && (
-        <>
-          {/* Back Arrow: Moved closer to center (left-28% vs 20%) and higher (top-65% vs 72%) on mobile */}
-          <div className="absolute left-[28%] md:left-20 top-[65%] md:top-1/2 -translate-y-1/2 z-20">
-            <button
-              onClick={() =>
-                step === 0 ? onNavigate('home') : handlePrev()
-              }
-              className={`p-4 md:p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}
-            >
-              <ArrowLeft
-                size={28}
-                strokeWidth={1}
-                className="group-hover:-translate-x-2 transition-transform duration-150"
-              />
-            </button>
-          </div>
 
-          {/* Forward arrow: Moved closer to center (right-28% vs 20%) and higher (top-65% vs 72%) on mobile */}
-          {(step === 0 || step === 2) && (
-            <div className="absolute right-[28%] md:right-12 top-[65%] md:top-1/2 -translate-y-1/2 z-20">
-              <button
-                disabled={!canProgress()}
-                onClick={handleNext}
-                className={`p-4 md:p-6 rounded-full transition-all duration-150 group ${canProgress()
-                    ? `${colors.accent}`
-                    : `opacity-30 cursor-not-allowed ${colors.muted}`
-                  }`}
-              >
-                <ArrowRight
-                  size={28}
-                  strokeWidth={1}
-                  className={
-                    canProgress()
-                      ? 'group-hover:translate-x-2 transition-transform duration-150'
-                      : ''
-                  }
-                />
-              </button>
-            </div>
-          )}
-        </>
+      {/* ── Side navigation ─────────────────────────────────────────────── */}
+// AFTER — back arrow hidden on step 0; both arrows desktop-only
+      {step > 0 && step < 5 && (
+        <div className="hidden md:block absolute left-20 top-1/2 -translate-y-1/2 z-20">
+          <button onClick={handlePrev} className={`p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}>
+            <ArrowLeft size={28} strokeWidth={1} className="group-hover:-translate-x-2 transition-transform duration-150" />
+          </button>
+        </div>
+      )}
+
+      {(step === 0 || step === 2) && step < 5 && (
+        <div className="hidden md:block absolute right-12 top-1/2 -translate-y-1/2 z-20">
+          <button
+            disabled={!canProgress()}
+            onClick={handleNext}
+            className={`p-6 rounded-full transition-all duration-150 group ${canProgress() ? colors.accent : 'opacity-30 cursor-not-allowed'}`}
+          >
+            <ArrowRight size={28} strokeWidth={1} className={canProgress() ? 'group-hover:translate-x-2 transition-transform duration-150' : ''} />
+          </button>
+        </div>
       )}
 
       {/* ── Main form area ──────────────────────────────────────────────── */}
@@ -298,7 +297,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   </span>
                   ?<br />
                   What are we{' '}
-                  <span className="italic font-serif">building?</span>
+                  <span className="italic font-serif text-green-500">building?</span>
                 </h2>
                 <div className="flex flex-wrap justify-center gap-2 md:gap-3 w-full">
                   {['Frontend', 'Web Systems', 'Backend', 'Full-Stack', 'DB DESIGN'].map(
@@ -310,8 +309,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                           safeSetStep((prev) => prev + 1);
                         }}
                         className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${data.service === s
-                            ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
-                            : `${colors.border} ${colors.muted}`
+                          ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
+                          : `${colors.border} ${colors.muted}`
                           }`}
                       >
                         {s}
@@ -351,14 +350,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     {data.file ? (
                       <div className="flex items-center gap-2">
                         <span
-                          className={`text-[10px] uppercase tracking-widest ${colors.muted} truncate max-w-[120px] md:max-w-[180px]`}
+                          className={`text-[10px] text-green-500 uppercase tracking-widest ${colors.muted} truncate max-w-[120px] md:max-w-[180px]`}
                         >
                           {data.file.name}
                         </span>
                         <button
                           onClick={handleFileClear}
                           aria-label="Remove attachment"
-                          className={`flex items-center gap-1 text-[10px] uppercase tracking-widest ${colors.muted} hover:text-red-400 transition-all`}
+                          className={`flex items-center gap-1 text-[10px] text-green-500 uppercase tracking-widest ${colors.muted} hover:text-red-400 transition-all`}
                         >
                           <X size={12} />
                           Remove
@@ -367,7 +366,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     ) : (
                       <button
                         onClick={() => fileInputRef.current?.click()}
-                        className={`flex items-center gap-2 text-[10px] uppercase tracking-widest ${colors.muted} hover:text-green-500 transition-all`}
+                        className={`flex items-center gap-2 text-[10px] text-green-500 uppercase tracking-widest ${colors.muted} hover:text-green-500 transition-all`}
                       >
                         <Paperclip size={14} />
                         Attach Brief (PDF / DOC / DOCX)
@@ -398,26 +397,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   className={`text-4xl md:text-7xl font-light tracking-tight ${colors.text}`}
                 >
                   How should we{' '}
-                  <span className="italic font-serif">scale this?</span>
+                  <span className="italic font-serif text-green-500">scale </span>this?
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 w-full">
-                  {['$5k+', '$10k+', '$25k+', '$50k+', 'Enterprise', 'TBD'].map(
-                    (b) => (
-                      <button
-                        key={b}
-                        onClick={() => {
-                          setData((prev) => ({ ...prev, budget: b }));
-                          safeSetStep((prev) => prev + 1);
-                        }}
-                        className={`px-3 py-4 md:px-6 md:py-5 border ${colors.border} text-[10px] font-mono uppercase tracking-widest hover:border-green-500 transition-all rounded-sm ${data.budget === b
-                            ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
-                            : colors.text
-                          }`}
-                      >
-                        {b}
-                      </button>
-                    )
-                  )}
+                  {budgetOptions.map((b) => (
+                    <button
+                      key={b}
+                      onClick={() => {
+                        setData((prev) => ({ ...prev, budget: b }));
+                        safeSetStep((prev) => prev + 1);
+                      }}
+                      className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${data.budget === b
+                        ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
+                        : `${colors.border} ${colors.muted}`
+                        }`}
+                    >
+                      {b}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -429,7 +426,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}
                 >
                   Where can I{' '}
-                  <span className="italic font-serif">reach you?</span>
+                  <span className="italic font-serif text-green-500">reach</span> you?
                 </h2>
                 <input
                   autoFocus
@@ -505,10 +502,41 @@ export const ContactPage: React.FC<ContactPageProps> = ({
         </AnimatePresence>
       </main>
 
+
+      {/* ── Mobile nav row (below content, hidden on md+) ── */}
+      {step < 5 && (
+        <div className="flex md:hidden justify-center items-center gap-10 pb-4">
+          {/* Back: hidden on step 0 */}
+          {step > 0 ? (
+            <button
+              onClick={handlePrev}
+              className={`p-4 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}
+            >
+              <ArrowLeft size={24} strokeWidth={1} className="group-hover:-translate-x-1 transition-transform duration-150" />
+            </button>
+          ) : (
+            // Empty spacer to keep forward arrow centered when back is absent
+            <div className="w-14 h-14" />
+          )}
+
+          {/* Forward: only on steps that need it */}
+          {(step === 0 || step === 2) && (
+            <button
+              disabled={!canProgress()}
+              onClick={handleNext}
+              className={`p-4 rounded-full transition-all duration-150 group ${canProgress() ? colors.accent : 'opacity-30 cursor-not-allowed'
+                }`}
+            >
+              <ArrowRight size={24} strokeWidth={1} className={canProgress() ? 'group-hover:translate-x-1 transition-transform duration-150' : ''} />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ── Footer ──────────────────────────────────────────────────────── */}
       <footer className="w-full max-w-3xl mx-auto px-4 flex flex-col md:flex-row justify-center items-center  relative z-10 pb-22">
 
-      <div className="flex gap-20 md:gap-50">
+        <div className="flex gap-20 md:gap-50">
           {(
             [
               [Twitter, 'https://twitter.com/'],

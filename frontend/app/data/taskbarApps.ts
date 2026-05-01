@@ -1,7 +1,7 @@
 import React from 'react';
 import ChromeIcon from '../assets/svgs/chrome-logo-8793.svg?react';
 import Terminal from '../assets/img/portfolio/windows-terminal.png';
-import { User } from 'lucide-react';
+import ProjectIcon from '../assets/icons/Project.svg?react';
 
 export interface TaskbarAppData {
   appId: string;
@@ -22,7 +22,7 @@ export const taskbarApps: TaskbarAppData[] = [
     appId: 'terminal'
   },
   {
-    icon: React.createElement(User, { size: 32 }), label: 'Portfolio Hero', route: '/hero',
-    appId: 'about'
+    icon: React.createElement(ProjectIcon, { width: 32, height: 32 }), label: 'Projects', route: '/projects',
+    appId: 'projects'
   },
 ];

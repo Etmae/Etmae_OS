@@ -1,6 +1,5 @@
-export { default as Window } from './Window';
-export { default as Windows } from './Windows';
-export { default as WindowsManager } from './WindowsManager';
+export {  Window } from './Window';
+export {  WindowsManager } from './WindowsManager';
 
 
 

@@ -10,22 +10,18 @@ import { HeroText } from './components/HeroText';
 import { BackgroundOverlay } from './components/BackgroundOverlay';
 import type { PortfolioSection } from './hooks/useNavigation';
 
+
 interface ImmersivePortfolioHeroProps {
   scrollContainer: React.RefObject<HTMLDivElement | null>;
   scrollYProgress: MotionValue<number>;
   theme: 'dark' | 'light';
-  // FIX: made optional — PortfolioShell's sticky navbar owns theme toggling;
-  // the hero overlay navbar is a secondary UI that may not need it.
   onThemeToggle?: () => void;
   viewportMode: 'desktop' | 'mobile';
   isReady: boolean;
-  // FIX: added so the overlay navbar can show the active state and navigate.
+
   activeSection?: PortfolioSection;
   onNavigate?: (section: PortfolioSection) => void;
-  // FIX: was `Array<{ label: string; href: string }>` which is missing the
-  // required `section` field that PortfolioNavbar demands.
   navItems?: PortfolioNavItem[];
-  // Hide hero content when mobile menu is open
   isMobileMenuOpen?: boolean;
 }
 
@@ -80,24 +76,25 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
     }
   }, [isReady]);
 
-  // FIX: provide a no-op fallback so onNavigate is always callable without
+  // Provides a no-op fallback function so onNavigate is always callable without
   // optional-chaining at every call site inside PortfolioNavbar.
-  const handleNavigate = onNavigate ?? (() => {});
+  const handleNavigate = onNavigate ?? (() => { });
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="relative w-full h-[280vh]"
     >
-      <div 
-        className="sticky top-0 h-screen w-full overflow-hidden perspective-1000 z-10"
+      <div
+        // Using h-[100dvh] (100% dynamic viewport height) instead of h-screen prevents
+        // overflow issues on mobile browsers like Chrome where the address bar affects viewport height.
+        className="sticky top-0 h-[100dvh] w-full overflow-hidden perspective-1000 z-10"
         style={{
           opacity: isMobileMenuOpen ? 0 : 1,
           pointerEvents: isMobileMenuOpen ? 'none' : 'auto',
           transition: 'opacity 0.3s ease',
         }}
       >
-
         <motion.div
           className="absolute inset-0 w-full h-full origin-[50%_70%]"
           style={{
@@ -113,7 +110,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
             typographyName={portfolioHeroConfig.typographyName}
           />
 
-          <HeroImage 
+          <HeroImage
             isLoaded={isLoaded}
             viewportMode={viewportMode}
             theme={theme}

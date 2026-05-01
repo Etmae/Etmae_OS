@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { APP_REGISTRY } from '../apps/registry';
+import type { ComponentType } from 'react';
 
 export type WindowLayout = 'maximized' | 'snap-left' | 'snap-right' | 'snap-top' | 'snap-bottom' | 'floating';
 
@@ -8,7 +9,7 @@ export interface WindowState {
   id: string;
   appId: string;
   title: string;
-  icon?: string;
+  icon?: string | ComponentType<any>;
   
   // Current Geometry
   x: number;
@@ -25,6 +26,9 @@ export interface WindowState {
   isMinimized: boolean;
   isMaximized: boolean;
   props?: Record<string, any>; 
+  
+  // Cached thumbnail snapshot (captured when window is visible)
+  snapshot?: string;
 }
 
 interface WindowStore {
@@ -38,6 +42,7 @@ interface WindowStore {
   toggleMaximize: (id: string) => void;
   updateWindowPos: (id: string, x: number, y: number) => void;
   updateWindowSize: (id: string, width: number, height: number) => void;
+  updateWindowSnapshot: (id: string, snapshot: string) => void;
   snapWindow: (id: string, layout: WindowLayout) => void;
 }
 
@@ -280,6 +285,17 @@ export const useWindowStore = create<WindowStore>()(
       },
     }));
   },
+
+    updateWindowSnapshot: (id, dataUrl) =>
+      set((state) => {
+        if (!state.windows[id]) return state;
+        return {
+          windows: {
+            ...state.windows,
+            [id]: { ...state.windows[id], snapshot: dataUrl },
+          },
+        };
+      }),
 
   snapWindow: (id, layout) => {
     const { windows } = get();

@@ -1,7 +1,7 @@
 // apps/portfolio/hero.config.ts
-import darkDesktop from '../../assets/img/portfolio/unnamed (1).png';
-import lightDesktop from '../../assets/img/portfolio/unnamed (1).png';
-import mobile from '../../assets/img/portfolio/unnamed (1).png';
+import darkDesktop from '../../assets/img/portfolio/HeroImg2.png';
+import lightDesktop from '../../assets/img/portfolio/HeroImg2.png';
+import mobile from '../../assets/img/portfolio/HeroImg.png';
 import depthMask from '../../assets/img/portfolio/depth_mask.png';
 
 export const portfolioHeroConfig = {

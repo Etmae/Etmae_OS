@@ -42,7 +42,7 @@ export function useNavbarScroll({
   const ticking       = useRef(false);
 
   const update = useCallback(() => {
-    // Guard: ref object might be undefined, or .current might be null
+    // Guard: validate that ref object and its current value exist before accessing properties.
     const el = scrollContainer?.current;
     if (!el) {
       ticking.current = false;
@@ -73,9 +73,6 @@ export function useNavbarScroll({
   }, [scrollContainer, floatThreshold, hideThreshold]);
 
   useEffect(() => {
-    // The scroll container's DOM element may not be attached yet on the first
-    // render pass (ref.current is null while React is still committing).
-    // We poll with a short interval until it appears, then attach once.
     let el: HTMLDivElement | null = null;
     let pollId: ReturnType<typeof setInterval> | null = null;
 
@@ -96,9 +93,8 @@ export function useNavbarScroll({
       return true;
     };
 
-    // Try immediately — will succeed on re-renders after the ref is populated
+
     if (!attach()) {
-      // Not ready yet — poll every 50 ms until the element mounts
       pollId = setInterval(() => {
         if (attach() && pollId !== null) {
           clearInterval(pollId);

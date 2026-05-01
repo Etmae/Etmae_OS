@@ -9,7 +9,7 @@ interface LatestProjectsProps {
   theme?: 'dark' | 'light';
   scrollContainer?: React.RefObject<HTMLDivElement | null>;
   scrollYProgress: MotionValue<number>;
-  onNavigate: (section: PortfolioSection) => void;
+  onNavigate: (section: PortfolioSection, projectId?: string) => void;
 }
 
 // Use only the first 3 projects for the "latest" showcase
@@ -96,6 +96,7 @@ export const LatestProjects: React.FC<LatestProjectsProps> = ({
             />
           ))}
 
+
           {/* ─── MOBILE "View Full Archive" Button ────────────────────── */}
           <div className="lg:hidden pt-8 border-t border-zinc-800/50">
             <button
@@ -120,11 +121,15 @@ const ProjectCard: React.FC<{
   theme: string; 
   index: number;
   scrollContainer?: React.RefObject<HTMLDivElement>;
-  onNavigate: (section: PortfolioSection) => void;
+  onNavigate: (section: PortfolioSection, projectId?: string) => void;
 }> = ({ project, theme, index, scrollContainer, onNavigate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isDark = theme === 'dark';
   const textSecondary = isDark ? 'text-zinc-500' : 'text-zinc-400';
+
+  const handleViewProject = () => {
+    onNavigate('project-detail', project.id);
+  };
 
   return (
     <div ref={containerRef} className="group relative w-full flex flex-col gap-6">
@@ -154,9 +159,12 @@ const ProjectCard: React.FC<{
         </motion.div>
         
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150 bg-black/20 backdrop-blur-[2px]">
-          <div className="w-20 h-20 rounded-full bg-white text-black flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-150">
+          <button 
+            onClick={handleViewProject}
+            className="w-20 h-20 rounded-full bg-white text-black flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-150 cursor-pointer"
+          >
             <ArrowUpRight size={32} strokeWidth={1.5} />
-          </div>
+          </button>
         </div>
       </div>
 
@@ -168,7 +176,7 @@ const ProjectCard: React.FC<{
         </div>
         <div className="md:col-span-4 flex justify-start md:justify-end items-start">
           <button 
-            onClick={() => onNavigate('project-detail')}
+            onClick={handleViewProject}
             className={`inline-block text-xs font-mono uppercase underline decoration-1 underline-offset-4 hover:decoration-2 ${textSecondary} hover:${isDark ? 'text-white' : 'text-black'} transition-all`}
           >
             View Project

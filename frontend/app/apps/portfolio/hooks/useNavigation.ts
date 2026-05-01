@@ -86,7 +86,8 @@ export const usePortfolioNavigation = (): UsePortfolioNavigationReturn => {
               return 'home' as PortfolioSection;
             })();
 
-        // Guard: skip redundant user navigations but always honour history events
+        // Guard: skip redundant internal navigations but always respect browser history events.
+        // This prevents unnecessary re-renders while maintaining correct back/forward button behavior.
         if (origin === 'user' && 
             section === activeSectionRef.current && 
             projectId === selectedProjectId) return;

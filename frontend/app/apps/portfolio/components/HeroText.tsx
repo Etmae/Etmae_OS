@@ -28,20 +28,19 @@ export const HeroText: React.FC<HeroTextProps> = ({
       style={{ opacity: uiOpacity }}
       className={`
         absolute z-40
-        left-6 md:left-10
-        bottom-[24dvh] md:bottom-[18dvh]
+        left-4 sm:left-6 md:left-10
+        text-sm md:text-base lg:text-lg xl:text-xl
+        /* FIX: Use calc() to guarantee it sits above a ~60px taskbar + padding */
+        bottom-[calc(60px+12dvh)] md:bottom-[calc(60px+15dvh)]
         transition-colors duration-150
         ${theme === 'dark' ? 'text-white' : 'text-black'}
       `}
-      // dvh (dynamic viewport height) scales proportionally to the actual
-      // visible viewport on both real devices and DevTools emulation.
-      // mobile:  24dvh ≈ 198px on a ~844px tall viewport (iPhone 12)
-      // md+:     18dvh ≈ 160px on a ~900px tall viewport (desktop)
     >
-      <h2 className="text-6xl md:text-8xl font-light tracking-tighter leading-none">
+      {/* FIX: Smoother responsive text sizing to prevent wrapping breaks */}
+      <h2 className="text-5xl sm:text-6xl md:text-8xl font-light tracking-tighter leading-none whitespace-nowrap">
         {name}
       </h2>
-      <p className="text-[10px] uppercase tracking-[0.5em] mt-5 opacity-40 font-bold pl-1">
+      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] sm:tracking-[0.5em] mt-3 sm:mt-5 opacity-40 font-bold pl-1 max-w-[90vw] truncate">
         {title} &mdash; {subtitle}
       </p>
     </motion.div>
