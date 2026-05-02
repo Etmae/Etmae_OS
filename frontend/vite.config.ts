@@ -3,21 +3,20 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import svgr from "vite-plugin-svgr";
-import mkcert from 'vite-plugin-mkcert';
+import mkcert from "vite-plugin-mkcert";
 
-
-
-
-
-export default defineConfig({
-  plugins: [tailwindcss(), reactRouter(), tsconfigPaths(), svgr(), mkcert() ],
+export default defineConfig(({ command }) => ({
+  plugins: [
+    tailwindcss(),
+    reactRouter(),
+    tsconfigPaths(),
+    svgr(),
+    ...(command === "serve" ? [mkcert()] : []),
+  ],
   server: {
     port: 5173,
     open: true,
-     // Currently disabled pending further testing and validation
     strictPort: true,
     host: true,
-  }
-
-});
-
+  },
+}));
