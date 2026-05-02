@@ -81,13 +81,13 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleReset}
-            className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-xl"
+            className="fixed inset-0 z-9998g-black/60 backdrop-blur-xl"
           />
         )}
       </AnimatePresence>
 
       <div
-        className={`fixed z-[9999] pointer-events-none ${
+        className={`fixed z-9999 pointer-events-none ${
           isCentered
             ? "inset-0 flex items-center justify-center p-4"
             // Dynamic bottom padding ensures the orb clears both the taskbar and mobile device safe areas.
@@ -156,7 +156,7 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
             <motion.div
               key="pill"
               layoutId="ai-orb"
-              className="pointer-events-auto relative w-full max-w-[340px] sm:max-w-[340px] md:max-w-[440px] bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
+              className="pointer-events-auto relative w-full max-w-[340px] sm:max-w-[340px] md:max-w-[440px] bg-white/3 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
               transition={{ type: "spring", stiffness: 250, damping: 30 }}
             >
               {/* Header */}
@@ -195,7 +195,7 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
                         ))}
                       </div>
                     ) : (
-                      <p className="bg-gradient-to-br from-white to-white/50 bg-clip-text text-transparent">
+                      <p className="bg-linear-to-br from-white to-white/50 bg-clip-text text-transparent">
                         {response}
                       </p>
                     )}
@@ -208,7 +208,7 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
                 {!isDone ? (
                   <form
                     onSubmit={handleSubmit}
-                    className="flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-white/[0.02] rounded-3xl border border-white/5 focus-within:border-white/10 transition-all"
+                    className="flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 bg-white/2 rounded-3xl border border-white/5 focus-within:border-white/10 transition-all"
                   >
                     <input
                       ref={inputRef}

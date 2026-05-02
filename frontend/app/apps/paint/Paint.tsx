@@ -405,7 +405,7 @@ export default function Paint() {
 
           {/* Colors */}
 
-          <div className="flex flex-col gap-1 min-w-[160px]">
+          <div className="flex flex-col gap-1 min-w-40">
 
             <span className="text-[11px] text-gray-600 font-semibold">Colors</span>
 

@@ -221,7 +221,7 @@ const NewsCard: React.FC<{ article: NewsArticle; featured?: boolean }> = ({
     >
       {/* Thumbnail — emoji icon as category visual */}
       <div
-        className="relative flex items-end justify-end flex-shrink-0"
+        className="relative flex items-end justify-end shrink-0"
         style={{
           background: 'rgba(255,255,255,0.1)',
           ...(featured
@@ -254,7 +254,7 @@ const NewsCard: React.FC<{ article: NewsArticle; featured?: boolean }> = ({
         </p>
         <div className="flex items-center gap-1 mt-1.5" style={{ color: 'rgba(255,255,255,.4)' }}>
           <div
-            className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+            className="w-2.5 h-2.5 rounded-full shrink-0"
             style={{ background: 'rgba(255,255,255,.18)' }}
           />
           <span className="text-[9px]">
@@ -602,7 +602,7 @@ const WidgetsBoard: React.FC<WidgetsBoardProps> = ({
                         style={{ background: 'rgba(255,255,255,.04)' }}
                       >
                         <div
-                          className="flex items-center justify-center flex-shrink-0"
+                          className="flex items-center justify-center shrink-0"
                           style={{
                             width: 13, height: 13, borderRadius: 3,
                             border: todo.done ? 'none' : '1px solid rgba(255,255,255,.28)',

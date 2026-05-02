@@ -111,7 +111,7 @@ export const PortfolioShell: React.FC = () => {
         }}
       >
         <div 
-          className="fixed z-[999] pointer-events-auto
+          className="fixed z-999 pointer-events-auto
                      bottom-6 right-6      /* Mobile: Standard corner offset */
                      md:bottom-12 md:right-12 /* Desktop: Elegant breathing room */
                      w-16 h-16            /* Base size */

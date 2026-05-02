@@ -88,7 +88,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
       <div
         // Using h-[100dvh] (100% dynamic viewport height) instead of h-screen prevents
         // overflow issues on mobile browsers like Chrome where the address bar affects viewport height.
-        className="sticky top-0 h-[100dvh] w-full overflow-hidden perspective-1000 z-10"
+        className="sticky top-0 h-dvhll overflow-hidden perspective-1000 z-10"
         style={{
           opacity: isMobileMenuOpen ? 0 : 1,
           pointerEvents: isMobileMenuOpen ? 'none' : 'auto',
