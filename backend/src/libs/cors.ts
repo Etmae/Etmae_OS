@@ -1,12 +1,16 @@
 const ALLOWED_ORIGINS = [
   "https://localhost:5173",
-  "https://your-production-domain.com",
-  "https://www.your-production-domain.com",
+  "https://etmae-os.pages.dev",
+  "https://etmae.pages.dev",
+  "https://etmae.vercel.app",
 ];
 
 export function getCorsHeaders(origin?: string | null) {
+  const isAllowedPreviewOrigin =
+    origin?.endsWith(".pages.dev") || origin?.endsWith(".vercel.app");
+
   const allowOrigin =
-    origin && ALLOWED_ORIGINS.includes(origin)
+    origin && (ALLOWED_ORIGINS.includes(origin) || isAllowedPreviewOrigin)
       ? origin
       : ALLOWED_ORIGINS[0];
 
