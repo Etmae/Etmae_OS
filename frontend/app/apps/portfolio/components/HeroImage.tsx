@@ -11,6 +11,7 @@ interface HeroImageProps {
   images: {
     darkDesktop: string;
     lightDesktop: string;
+    mobile?: string;
   };
 }
 
@@ -20,6 +21,12 @@ export const HeroImage: React.FC<HeroImageProps> = ({
   theme,
   images
 }) => {
+  const imageSrc = viewportMode === 'mobile' && images.mobile
+    ? images.mobile
+    : theme === 'dark'
+      ? images.darkDesktop
+      : images.lightDesktop;
+
   return (
     // Padding calculation ensures the image bottom position clears the taskbar height (60px)
     // plus standard spacing (2rem) for proper visual breathing room.
@@ -36,7 +43,7 @@ export const HeroImage: React.FC<HeroImageProps> = ({
         `}
       >
         <img
-          src={theme === 'dark' ? images.darkDesktop : images.lightDesktop}
+          src={imageSrc}
           className="w-full h-full object-cover object-top"
           alt="Portfolio Hero"
         />

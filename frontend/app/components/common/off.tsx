@@ -1,45 +1,63 @@
 import { motion } from "framer-motion";
 import { Power } from "lucide-react";
-import { useNavigate } from "react-router";
 
 export const PowerOff = () => {
-  const navigate = useNavigate();
-
   const handlePowerOn = () => {
-    // Clear the boot flag and reload to trigger the boot sequence
+    // Clear the boot flag and boot back into the sign-in flow
     sessionStorage.removeItem("system_booted");
-    window.location.reload();
+    sessionStorage.removeItem("desktopDisclaimerShown");
+    window.location.href = "/signin";
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center">
-      {/* The "Monitor" Standby Light */}
-      <div className="mb-12 w-2 h-2 rounded-full bg-orange-500/20 shadow-[0_0_8px_rgba(249,115,22,0.5)] animate-pulse" />
+    <div className="min-h-screen bg-neutral-950 flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-green-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={handlePowerOn}
-        className="group relative flex flex-col items-center gap-6"
+        className="group relative flex flex-col items-center gap-8 z-10"
       >
-        {/* Big Switch Button */}
-        <div className="relative">
-          <div className="w-24 h-12 rounded-full bg-black border-2 border-gray-600 flex items-center transition-all group-hover:border-gray-400 group-hover:shadow-[0_0_30px_rgba(156,163,175,0.4)]">
-            <div className="w-10 h-10 rounded-full bg-gray-600 ml-1 transition-all group-hover:bg-gray-400 group-hover:translate-x-1 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-full bg-black"></div>
-            </div>
+        {/* Main Hardware Button */}
+        <div className="relative flex items-center justify-center w-32 h-32 rounded-full bg-neutral-900 border border-neutral-800 shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:border-green-500/30 group-hover:shadow-[inset_0_0_30px_rgba(34,197,94,0.1),0_0_50px_rgba(34,197,94,0.15)]">
+          
+          {/* Inner ring & Icon */}
+          <div className="absolute inset-2 rounded-full bg-linear-to-br from-neutral-800 to-neutral-950 border border-neutral-700/50 flex items-center justify-center">
+            <Power 
+              className="w-12 h-12 text-neutral-600 transition-all duration-500 group-hover:text-green-400 group-hover:drop-shadow-[0_0_12px_rgba(34,197,94,0.8)]" 
+              strokeWidth={1.5} 
+            />
           </div>
-          <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-green-500/20 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse"></div>
+
+          {/* Spinning ring effect on hover */}
+          <div className="absolute -inset-1 rounded-full border-2 border-transparent group-hover:border-t-green-500/50 group-hover:border-r-green-500/20 opacity-0 group-hover:opacity-100 transition-all duration-700 group-hover:animate-spin" />
         </div>
         
-        <span className="text-green-500/30 font-mono text-sm uppercase tracking-[0.2em] group-hover:text-green-400 transition-colors">
-          Power On
-        </span>
+        {/* Initialization Text & Loading Dots */}
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-neutral-500 font-mono text-sm uppercase tracking-[0.3em] group-hover:text-green-400 transition-colors duration-500">
+            Initialize
+          </span>
+          <div className="flex gap-1.5 opacity-50 group-hover:opacity-100 transition-opacity duration-500">
+            <span className="w-1 h-1 rounded-full bg-neutral-600 group-hover:bg-green-500 animate-pulse" style={{ animationDelay: '0ms' }} />
+            <span className="w-1 h-1 rounded-full bg-neutral-600 group-hover:bg-green-500 animate-pulse" style={{ animationDelay: '150ms' }} />
+            <span className="w-1 h-1 rounded-full bg-neutral-600 group-hover:bg-green-500 animate-pulse" style={{ animationDelay: '300ms' }} />
+          </div>
+        </div>
       </motion.button>
 
-      <p className="fixed bottom-8 text-white/5 font-mono text-[10px]">
-        SYSTEM_STATE: DISCONNECTED
-      </p>
+      {/* System Status Footer */}
+      <div className="fixed bottom-8 flex flex-col items-center gap-2 opacity-50">
+        <div className="flex items-center gap-2">
+          {/* Standby Light */}
+          <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+          <p className="text-white font-mono text-[10px] tracking-widest">
+            SYSTEM_STATE: DISCONNECTED
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+};

@@ -25,7 +25,7 @@ export const desktopIcons: DesktopIconData[] = [
   { appId: 'about', icon: <AboutIcon width={32} height={32} />, label: 'About' },
   { appId: 'projects', icon: <ProjectIcon width={32} height={32} />, label: 'Projects' },
   { appId: 'contact', icon: <ContactIcon width={32} height={32} />, label: 'Contact' },
-  { appId: 'resume', icon: <FileText width={52} height={52} color='yellow'/>, label: 'Resume' },
+  { appId: 'resume', icon: <FileText width={52} height={52} color='yellow'/>, label: 'Resume.pdf' },
   { appId: 'edge', icon: <EdeIcon width={32} height={32} />, label: 'Microsoft Edge' },
   { appId: 'store', icon: <StoreIcon width={32} height={32} />, label: 'Microsoft Store' },
   { appId: 'chrome', icon: <ChromeIcon width={32} height={32} />, label: 'Google Chrome' },

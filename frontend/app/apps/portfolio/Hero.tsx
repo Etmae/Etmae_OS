@@ -1,6 +1,5 @@
 import React, { useState, useLayoutEffect, useRef, useEffect } from 'react';
 import { motion, useTransform, MotionValue } from 'framer-motion';
-import { PortfolioNavbar } from './components/PortfolioNavbar';
 import type { PortfolioNavItem } from './components/PortfolioNavbar';
 import { portfolioHeroConfig } from './Hero.config';
 import Lenis from 'lenis';
@@ -88,7 +87,7 @@ export const ImmersivePortfolioHero: React.FC<ImmersivePortfolioHeroProps> = ({
       <div
         // Using h-[100dvh] (100% dynamic viewport height) instead of h-screen prevents
         // overflow issues on mobile browsers like Chrome where the address bar affects viewport height.
-        className="sticky top-0 h-dvhll overflow-hidden perspective-1000 z-10"
+        className="sticky top-0 h-dvh overflow-hidden perspective-1000 z-10"
         style={{
           opacity: isMobileMenuOpen ? 0 : 1,
           pointerEvents: isMobileMenuOpen ? 'none' : 'auto',

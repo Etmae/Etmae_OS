@@ -1,16 +1,3 @@
-/**
- * TaskbarThumbnailPreview.tsx
- *
- * Windows 11-style window thumbnail preview panel.
- *
- * Fixes applied:
- * - Removed 'instances' from ThumbnailPreviewProps. The component now reads
- *   live window state directly from useWindowStore filtered by appId. This
- *   prevents stale snapshot data — the old prop was captured at hover time
- *   and never reflected snapshot updates written to the store afterward.
- * - All snapshot reads now hit the live store, so thumbnails appear as soon
- *   as html2canvas finishes capturing them.
- */
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';

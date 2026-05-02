@@ -26,22 +26,15 @@ export const HeroText: React.FC<HeroTextProps> = ({
       animate={isLoaded ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
       transition={{ duration: 1, delay: 0.2 }}
       style={{ opacity: uiOpacity }}
-      className={`
-        absolute z-40
-        left-4 sm:left-6 md:left-10
-        text-sm md:text-base lg:text-lg xl:text-xl
-        /* FIX: Use calc() to guarantee it sits above a ~60px taskbar + padding */
-        bottom-[calc(60px+12dvh)] md:bottom-[calc(60px+15dvh)]
-        transition-colors duration-150
-        ${theme === 'dark' ? 'text-white' : 'text-black'}
-      `}
+      className={`absolute z-40 left-4 bottom-[calc(60px+12dvh)] text-sm transition-colors duration-150 sm:left-6 md:left-10 md:bottom-[calc(60px+15dvh)] md:text-base lg:text-lg xl:text-xl ${
+        theme === 'dark' ? 'text-white' : 'text-black'
+      }`}
     >
-      {/* FIX: Smoother responsive text sizing to prevent wrapping breaks */}
-      <h2 className="text-5xl sm:text-6xl md:text-8xl font-light tracking-tighter leading-none whitespace-nowrap">
+      <h2 className="text-5xl font-light tracking-tighter leading-none whitespace-nowrap sm:text-6xl md:text-8xl">
         {name}
       </h2>
-      <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] sm:tracking-[0.5em] mt-3 sm:mt-5 opacity-40 font-bold pl-1 max-w-[90vw] truncate">
-        {title} &mdash; {subtitle}
+      <p className="mt-3 max-w-[90vw] truncate pl-1 text-[9px] font-bold uppercase tracking-[0.4em] opacity-40 sm:mt-5 sm:text-[10px] sm:tracking-[0.5em]">
+        {title} - {subtitle}
       </p>
     </motion.div>
   );

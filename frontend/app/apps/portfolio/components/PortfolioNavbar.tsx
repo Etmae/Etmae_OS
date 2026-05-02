@@ -23,6 +23,8 @@ import type {
   StaggeredMenuSocialItem,
 } from "./StaggeredMenu/StaggeredMenu";
 import type { PortfolioSection } from "../hooks/useNavigation";
+import darkLogoAsset from "../../../assets/img/portfolio/dark_logo.png";
+import lightLogoAsset from "../../../assets/img/portfolio/light_logo.png";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -178,8 +180,8 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
   onThemeToggle,
   opacity,
   scrollContainer,
-  darkLogo = "/app/assets/img/portfolio/dark_logo.png",
-  lightLogo = "/app/assets/img/portfolio/light_logo.png",
+  darkLogo = darkLogoAsset,
+  lightLogo = lightLogoAsset,
   navItems = DEFAULT_NAV_ITEMS,
   className = "",
   onMobileMenuStateChange,
@@ -400,7 +402,7 @@ export const PortfolioNavbar: React.FC<PortfolioNavbarProps> = ({
           externalOpen drives open/close from the pill hamburger above.
           isFixed=true so the panel covers the full screen correctly. */}
       {isMobile && (
-        <div className="fixed inset-0 z-60 pointer-events-none">
+        <div className={cn("fixed inset-0 z-60", isMenuOpen ? "pointer-events-auto" : "pointer-events-none")}>
           <StaggeredMenu
             position="right"
             items={menuItems}

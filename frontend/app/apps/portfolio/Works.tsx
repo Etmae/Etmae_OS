@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { PROJECTS_DATA } from './ProjectDetailWrapper';
+import { ProjectDetailWrapper } from './ProjectDetailWrapper';
 
 type ViewMode = 'grid' | 'list';
 
@@ -21,7 +22,28 @@ export const WorksPage = ({ theme = 'dark', onNavigate }: { theme?: string; onNa
   const isDark = theme === 'dark';
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [activeListId, setActiveListId] = useState<string | null>(null);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const selectedProject = selectedProjectId
+    ? PROJECTS_DATA.find((project) => project.id === selectedProjectId) || null
+    : null;
+
+  const handleOpenProject = (projectId: string) => {
+    if (onNavigate) {
+      onNavigate('project-detail', projectId);
+    } else {
+      setSelectedProjectId(projectId);
+    }
+  };
+
+  const handleBack = () => {
+    if (onNavigate) {
+      onNavigate('works');
+    } else {
+      setSelectedProjectId(null);
+    }
+  };
 
   const colors = {
     bg: isDark ? 'bg-[#050505]' : 'bg-zinc-50',
@@ -56,6 +78,16 @@ export const WorksPage = ({ theme = 'dark', onNavigate }: { theme?: string; onNa
     setActiveListId(null);
   };
 
+  if (!onNavigate && selectedProject) {
+    return (
+      <ProjectDetailWrapper
+        projectId={selectedProject.id}
+        theme={theme as 'dark' | 'light'}
+        onBack={handleBack}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen ${colors.bg} ${colors.text} font-sans overflow-x-hidden transition-colors duration-150`}>
       <main className="w-full">
@@ -89,7 +121,7 @@ export const WorksPage = ({ theme = 'dark', onNavigate }: { theme?: string; onNa
 
               <div className="grid grid-cols-12 gap-y-[12vh] md:gap-y-[20vh] gap-x-6 md:gap-x-12">
                 {PROJECTS_WITH_LAYOUT.map((project) => (
-                  <div key={project.id} className={`${project.gridSpan} ${project.marginT} group cursor-pointer flex flex-col`} onClick={() => onNavigate?.('project-detail', project.id)}>
+                  <div key={project.id} className={`${project.gridSpan} ${project.marginT} group cursor-pointer flex flex-col`} onClick={() => handleOpenProject(project.id)}>
                     <div className={`relative w-full ${project.aspect} overflow-hidden ${isDark ? 'bg-[#111]' : 'bg-zinc-200'}`}>
                       <motion.img 
                         whileHover={{ scale: 1.05 }}
@@ -141,7 +173,7 @@ export const WorksPage = ({ theme = 'dark', onNavigate }: { theme?: string; onNa
                     key={project.id}
                     onMouseEnter={() => handleMouseEnter(project.id)}
                     onMouseLeave={handleMouseLeave}
-                    onClick={() => onNavigate?.('project-detail', project.id)}
+                    onClick={() => handleOpenProject(project.id)}
                     animate={{ 
                       height: isActive ? '100dvh' : isAnotherActive ? '0dvh' : `${70 / PROJECTS_WITH_LAYOUT.length}dvh`,
                       opacity: isAnotherActive ? 0 : 1

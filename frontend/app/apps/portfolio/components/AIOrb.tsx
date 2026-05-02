@@ -92,7 +92,7 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
             ? "inset-0 flex items-center justify-center p-4"
             // Dynamic bottom padding ensures the orb clears both the taskbar and mobile device safe areas.
             // This calculation is responsive and adapts to the current viewport and taskbar state.
-            : "bottom-[calc(60px+env(safe-area-inset-bottom)+1rem)] right-4 sm:right-6 md:right-12"
+            : "bottom-[calc(48px+env(safe-area-inset-bottom)+1rem)] right-4 sm:right-6 md:right-12"
         }`}
       >
         <AnimatePresence mode="wait">

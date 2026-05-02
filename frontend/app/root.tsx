@@ -67,13 +67,17 @@ export default function App() {
   };
 
   const handleShutdown = () => {
-    // Navigate to the off screen
+    // Simulate a full shutdown by clearing boot state and going to the off screen
+    sessionStorage.removeItem("system_booted");
+    sessionStorage.removeItem("desktopDisclaimerShown");
     navigate('/off');
   };
 
   const handleRestart = () => {
-    // Clear the boot flag and force re-mount to restart boot sequence
+    // Clear the boot flag, show boot loader again, and force re-mount to restart
     sessionStorage.removeItem("system_booted");
+    sessionStorage.removeItem("desktopDisclaimerShown");
+    setIsLoading(true);
     setBootKey(prev => prev + 1);
   };
 

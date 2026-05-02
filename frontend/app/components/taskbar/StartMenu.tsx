@@ -42,7 +42,8 @@ const StartMenu: React.FC<StartMenuProps> = ({
           <motion.div className="fixed inset-0 z-20" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div 
             data-start-menu 
-            className={isMobile ? 'fixed inset-x-0 bottom-0 z-30 max-h-[80vh]' : 'fixed bottom-20 left-1/2 z-30 w-[640px] max-w-[90vw]'}
+            className={isMobile ? 'fixed inset-x-0 z-30' : 'fixed bottom-20 left-1/2 z-30 w-[640px] max-w-[90vw]'}
+            style={isMobile ? { bottom: '48px', maxHeight: 'calc(80vh - 48px)' } : undefined}
             initial={{ opacity: 0, y: 20, scale: isMobile ? 1 : 0.96, x: isMobile ? '0%' : '-50%' }}
             animate={{ opacity: 1, y: 0, scale: 1, x: isMobile ? '0%' : '-50%' }}
             exit={{ opacity: 0, y: 20, scale: isMobile ? 1 : 0.96, x: isMobile ? '0%' : '-50%' }}

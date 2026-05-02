@@ -39,7 +39,7 @@ const ALLOWED_FILE_TYPES = [
 ];
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-const API_BASE = import.meta.env.VITE_API_URL ?? '';
+const API_BASE = import.meta.env.VITE_BACKEND_URL ?? '';
 
 const INITIAL_DATA: ContactFormData = {
   name: '',
@@ -218,7 +218,6 @@ export const ContactPage: React.FC<ContactPageProps> = ({
     >
 
       {/* ── Side navigation ─────────────────────────────────────────────── */}
-// AFTER — back arrow hidden on step 0; both arrows desktop-only
       {step > 0 && step < 5 && (
         <div className="hidden md:block absolute left-20 top-1/2 -translate-y-1/2 z-20">
           <button onClick={handlePrev} className={`p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}>
@@ -539,9 +538,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
         <div className="flex gap-20 md:gap-50">
           {(
             [
-              [Twitter, 'https://twitter.com/'],
-              [Github, 'https://github.com/'],
-              [Linkedin, 'https://linkedin.com/in/'],
+              [Twitter, 'https://x.com/Ttmw53820'],
+              [Github, 'https://github.com/Etmae'],
+              [Linkedin, 'https://www.linkedin.com/in/erioluwa-olujimi-a38b42237/'],
             ] as const
           ).map(([Icon, href], i) => (
             <a

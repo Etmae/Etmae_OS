@@ -296,6 +296,19 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
 
                   {/* Mobile CV Button */}
 
+                  <div className="mt-12 lg:hidden">
+                    <button onClick={download} disabled={cvState === 'loading'} className={`group flex items-center gap-4 px-10 py-5 bg-green-500 rounded-3xl border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase disabled:opacity-60 disabled:cursor-not-allowed w-full justify-center`}>
+                      {cvState === 'loading' ? (
+                        <><Loader2 size={16} className="animate-spin" /> Downloading CV...</>
+                      ) : (
+                        <><Download size={16} className="group-hover:-translate-y-1 transition-transform" /> Download Resume</>
+                      )}
+                    </button>
+                    {cvState === 'error' && cvError && (
+                      <p className="text-red-400 text-xs font-mono mt-2">{cvError}</p>
+                    )}
+                  </div>
+
                 </div>
               </RevealOnScroll>
             </div>
@@ -323,7 +336,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 </div>
 
                 <div className="mt-12 hidden lg:block">
-                  <button onClick={download} disabled={cvState === 'loading'} className={`group flex items-center gap-4 px-10 py-5 rounded-3xl border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase disabled:opacity-60 disabled:cursor-not-allowed`}>
+                  <button onClick={download} disabled={cvState === 'loading'} className={`group flex items-center gap-4 px-10 py-5 bg-green-500 rounded-3xl border ${colors.border} ${colors.text} hover:bg-white hover:text-black transition-all duration-150 font-mono text-[10px] tracking-[0.3em] uppercase disabled:opacity-60 disabled:cursor-not-allowed`}>
                     {cvState === 'loading' ? (
                       <><Loader2 size={16} className="animate-spin" /> Downloading CV...</>
                     ) : (
@@ -465,7 +478,7 @@ export const AboutPage = ({ theme = 'dark', scrollContainer }: { theme?: string;
                 >
                   {/* Node Name & Tagline */}
                   <div className="mb-8">
-                    <h3 className={`text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-2 ${colors.text}`}>
+                    <h3 className={`text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-2 text-green-500 `}>
                       {circleNodes[activeIndex].name}
                     </h3>
                     <p className="text-lg md:text-xl text-green-500 font-medium italic">

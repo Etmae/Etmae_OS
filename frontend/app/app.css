@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 
-/* Add to your CSS file */
+
 canvas, img, video {
   /* Prevents the 'fuzzy' look during scale transforms */
   image-rendering: -webkit-optimize-contrast;

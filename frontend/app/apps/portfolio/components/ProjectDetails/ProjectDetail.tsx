@@ -72,17 +72,18 @@ export const ProjectDetail = ({ project, theme = 'dark', onBack, factory }: Proj
       exit={{ opacity: 0 }}
       className={`min-h-screen ${colors.bg} ${colors.text} selection:bg-green-500 selection:text-black overflow-x-hidden`}
     >
-      {/* ── NAVIGATION ── */}
-      <nav className="fixed top-0 left-0 w-full z-50 px-6 md:px-16 py-6 flex items-center justify-between">
+
+      <div className="px-6 md:px-16 py-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-widest text-white/60 hover:text-white transition-colors duration-200"
+          className={`inline-flex items-center gap-3 text-[10px] font-mono uppercase tracking-widest transition-colors duration-200 ${
+            isDark ? 'text-white/60 hover:text-white' : 'text-zinc-900/60 hover:text-zinc-900'
+          }`}
         >
           <span className="w-8 h-px bg-current inline-block" />
           Back
         </button>
-        <span className="text-[10px] font-mono uppercase tracking-widest text-white/30">{project.number}</span>
-      </nav>
+      </div>
 
       {/* ── HEADER ── */}
       <header className="h-[95vh] w-full flex items-center px-6 md:px-16 pt-20">

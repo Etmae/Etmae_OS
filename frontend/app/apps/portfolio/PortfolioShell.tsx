@@ -110,15 +110,7 @@ export const PortfolioShell: React.FC = () => {
           pointerEvents: loading ? 'none' : 'auto',
         }}
       >
-        <div 
-          className="fixed z-999 pointer-events-auto
-                     bottom-6 right-6      /* Mobile: Standard corner offset */
-                     md:bottom-12 md:right-12 /* Desktop: Elegant breathing room */
-                     w-16 h-16            /* Base size */
-                     md:w-20 md:h-20      /* Responsive scaling */"
-        >
-          <HeroOrb onNavigate={handleNavigate} />
-        </div>
+        {!isMobileMenuOpen && <HeroOrb onNavigate={handleNavigate} />}
         {/* 
           Sticky navigation bar positioned inside the scroll container.
           The navbar height offset affects child page scroll calculations used for animations.
