@@ -72,6 +72,50 @@ export const Window = memo(({ id }: WindowProps) => {
   useEffect(() => {
     if (!win || win.isMinimized || win.snapshot) return;
 
+    const normalizeCssValue = (property: string, value: string) => {
+      if (!value || !/(oklab|lab|lch|color\(|hwb\()/i.test(value)) return value;
+      try {
+        const tester = document.createElement('div');
+        tester.style.position = 'absolute';
+        tester.style.visibility = 'hidden';
+        tester.style.setProperty(property, value);
+        document.body.appendChild(tester);
+        const normalized = window.getComputedStyle(tester).getPropertyValue(property);
+        document.body.removeChild(tester);
+        if (normalized && !/(oklab|lab|lch|color\(|hwb\()/i.test(normalized)) {
+          return normalized;
+        }
+      } catch {
+        // ignore and fallback
+      }
+      return 'transparent';
+    };
+
+    const sanitizeClonedStyles = (source: HTMLElement, cloned: HTMLElement) => {
+      const queue: Array<{ source: HTMLElement; cloned: HTMLElement }> = [{ source, cloned }];
+      while (queue.length) {
+        const { source: currentSource, cloned: currentCloned } = queue.shift()!;
+        const computed = window.getComputedStyle(currentSource);
+        for (let i = 0; i < computed.length; i += 1) {
+          const prop = computed[i];
+          const value = computed.getPropertyValue(prop);
+          if (!value) continue;
+          const normalized = normalizeCssValue(prop, value);
+          if (normalized !== value) {
+            currentCloned.style.setProperty(prop, normalized, computed.getPropertyPriority(prop));
+          }
+        }
+
+        const sourceChildren = Array.from(currentSource.children) as HTMLElement[];
+        const clonedChildren = Array.from(currentCloned.children) as HTMLElement[];
+        for (let i = 0; i < sourceChildren.length; i += 1) {
+          if (clonedChildren[i]) {
+            queue.push({ source: sourceChildren[i], cloned: clonedChildren[i] });
+          }
+        }
+      }
+    };
+
     const captureSnapshot = async () => {
       // Selector targets the inner wrapper div that definitely owns the attribute
       const node = document.querySelector(
@@ -88,10 +132,19 @@ export const Window = memo(({ id }: WindowProps) => {
           logging:         false,
           backgroundColor: '#202020',
           ignoreElements:  (el) => el.tagName === 'IFRAME' || el.tagName === 'VIDEO',
+          onclone: (clonedDoc) => {
+            const clonedNode = clonedDoc.querySelector(
+              `[data-window-id="${id}"] [data-window-content]`
+            ) as HTMLElement | null;
+            if (clonedNode) {
+              sanitizeClonedStyles(node, clonedNode);
+            }
+          },
         });
         const dataUrl = canvas.toDataURL('image/webp', 0.75);
         if (dataUrl) updateWindowSnapshot(id, dataUrl);
-      } catch {
+      } catch (error) {
+        console.error('Failed to capture window snapshot:', error);
         // Silent fail — thumbnail will show placeholder icon
       }
     };

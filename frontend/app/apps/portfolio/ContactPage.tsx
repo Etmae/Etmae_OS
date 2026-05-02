@@ -7,7 +7,6 @@ import {
   Github,
   Twitter,
   Linkedin,
-  Globe,
   Loader2,
   X,
 } from 'lucide-react';
@@ -37,7 +36,8 @@ const ALLOWED_FILE_TYPES = [
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 const API_BASE = import.meta.env.VITE_BACKEND_URL ?? '';
 
@@ -50,8 +50,7 @@ const INITIAL_DATA: ContactFormData = {
   file: null,
 };
 
-
-const budgetOptions = [
+const BUDGET_OPTIONS = [
   '₦200k+',
   '₦300k+',
   '₦500k+',
@@ -59,7 +58,6 @@ const budgetOptions = [
   'Enterprise',
   'TBD',
 ];
-
 
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -76,25 +74,24 @@ export const ContactPage: React.FC<ContactPageProps> = ({
   const [fileError, setFileError] = useState<string | null>(null);
   const [data, setData] = useState<ContactFormData>(INITIAL_DATA);
 
-  // Stores the submitter's name separately so the success screen still has it
-  // even after form data is reset on successful submission.
+  // Persists the submitter's name so the success screen retains it
+  // after INITIAL_DATA is flushed on successful submission.
   const [submittedName, setSubmittedName] = useState('');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   /**
-   * Guards against double-steps caused by Framer Motion's exit animation.
+   * Guards against double-step advances caused by Framer Motion's exit animation.
    *
-   * With mode="wait", the exiting step content stays in the DOM for the full
-   * duration of its exit animation (~700ms). During that window its buttons
-   * are still clickable. A quick second tap on a service/budget button would
-   * fire setStep again — e.g. 3 → 4 then immediately 4 → 5, landing on the
-   * success screen without the user ever entering their email.
+   * With mode="wait", the exiting step's DOM stays mounted for the full exit
+   * duration (~700 ms). Buttons remain interactive during that window, so a
+   * rapid second tap could fire setStep twice (e.g. 3→4 then immediately 4→5).
    *
-   * The fix: set this ref to `true` the moment any step change is queued,
-   * and reset it to `false` only inside onAnimationComplete of the ENTERING
-   * motion.div (i.e. after the new step has fully settled). Every
-   * step-changing call is gated behind this ref.
+   * Strategy: set to `true` the moment any step change is enqueued; reset to
+   * `false` only inside onAnimationComplete of the *entering* motion.div.
+   * Every consumer is gated behind this ref via safeSetStep — except the async
+   * submission handler, which resets the ref explicitly before advancing to the
+   * success step (see handleSubmit).
    */
   const isTransitioning = useRef(false);
 
@@ -166,26 +163,20 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       formData.append('service', data.service);
       formData.append('budget', data.budget);
       formData.append('message', data.message);
-
-      if (data.file) {
-        formData.append('file', data.file);
-      }
+      if (data.file) formData.append('file', data.file);
 
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         mode: 'cors',
-        // Note: Content-Type is omitted to allow the browser to set the boundary for FormData
+        // Content-Type is intentionally omitted — the browser sets the
+        // multipart/form-data boundary automatically for FormData payloads.
         body: formData,
       });
 
-      // Handle potential empty responses or non-JSON errors
-      const contentType = response.headers.get("content-type");
-      let result;
-      if (contentType && contentType.includes("application/json")) {
-        result = await response.json();
-      } else {
-        result = { error: await response.text() };
-      }
+      const contentType = response.headers.get('content-type');
+      const result = contentType?.includes('application/json')
+        ? await response.json()
+        : { error: await response.text() };
 
       if (!response.ok) {
         throw new Error(result.error || `Error: ${response.status}`);
@@ -194,7 +185,12 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       setSubmittedName(data.name);
       setData(INITIAL_DATA);
 
-      // Navigate to success state
+      // Reset the transition guard before advancing to the success step.
+      // safeSetStep is ordinarily gated behind this ref to block double-taps
+      // during exit animations. Here the call originates from an async
+      // resolution — no animation is in flight — so the guard must be cleared
+      // manually to prevent a silent no-op.
+      isTransitioning.current = false;
       safeSetStep(() => 5);
 
     } catch (err) {
@@ -220,7 +216,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       {/* ── Side navigation ─────────────────────────────────────────────── */}
       {step > 0 && step < 5 && (
         <div className="hidden md:block absolute left-20 top-1/2 -translate-y-1/2 z-20">
-          <button onClick={handlePrev} className={`p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}>
+          <button
+            onClick={handlePrev}
+            className={`p-6 rounded-full ${colors.muted} hover:${colors.text} transition-all duration-150 group`}
+          >
             <ArrowLeft size={28} strokeWidth={1} className="group-hover:-translate-x-2 transition-transform duration-150" />
           </button>
         </div>
@@ -253,18 +252,14 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             }}
             className="w-full max-w-3xl flex flex-col items-center text-center px-4"
           >
-            <div
-              className={`text-[10px] font-mono uppercase tracking-[0.3em] ${colors.muted} mb-6 md:mb-8`}
-            >
-              {step < 5 ? `Step 0${step + 1} ` : 'Finalized'}
+            <div className={`text-[10px] font-mono uppercase tracking-[0.3em] ${colors.muted} mb-6 md:mb-8`}>
+              {step < 5 ? `Step 0${step + 1}` : 'Finalized'}
             </div>
 
             {/* ── Step 0 · Name ─────────────────────────────────────────── */}
             {step === 0 && (
               <div className="space-y-8 md:space-y-10 w-full">
-                <h2
-                  className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}
-                >
+                <h2 className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}>
                   What is your{' '}
                   <span className="italic font-serif text-green-500">name?</span>
                 </h2>
@@ -272,12 +267,8 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   autoFocus
                   type="text"
                   value={data.name}
-                  onChange={(e) =>
-                    setData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  onKeyDown={(e) =>
-                    e.key === 'Enter' && canProgress() && handleNext()
-                  }
+                  onChange={(e) => setData((prev) => ({ ...prev, name: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && canProgress() && handleNext()}
                   placeholder="Type here..."
                   className={`w-full ${colors.inputBg} border-b ${colors.border} pb-3 md:pb-4 text-2xl md:text-4xl text-center outline-none focus:border-green-500 transition-all ${colors.text} placeholder:opacity-20`}
                 />
@@ -287,9 +278,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             {/* ── Step 1 · Service ──────────────────────────────────────── */}
             {step === 1 && (
               <div className="space-y-8 md:space-y-12 w-full">
-                <h2
-                  className={`text-3xl md:text-7xl font-light tracking-tight ${colors.text}`}
-                >
+                <h2 className={`text-3xl md:text-7xl font-light tracking-tight ${colors.text}`}>
                   What's up,{' '}
                   <span className="text-green-500 italic font-serif">
                     {data.name.split(' ')[0]}
@@ -299,23 +288,22 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                   <span className="italic font-serif text-green-500">building?</span>
                 </h2>
                 <div className="flex flex-wrap justify-center gap-2 md:gap-3 w-full">
-                  {['Frontend', 'Web Systems', 'Backend', 'Full-Stack', 'DB DESIGN'].map(
-                    (s) => (
-                      <button
-                        key={s}
-                        onClick={() => {
-                          setData((prev) => ({ ...prev, service: s }));
-                          safeSetStep((prev) => prev + 1);
-                        }}
-                        className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${data.service === s
+                  {['Frontend', 'Web Systems', 'Backend', 'Full-Stack', 'DB DESIGN'].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => {
+                        setData((prev) => ({ ...prev, service: s }));
+                        safeSetStep((prev) => prev + 1);
+                      }}
+                      className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${
+                        data.service === s
                           ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
                           : `${colors.border} ${colors.muted}`
-                          }`}
-                      >
-                        {s}
-                      </button>
-                    )
-                  )}
+                      }`}
+                    >
+                      {s}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
@@ -323,34 +311,30 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             {/* ── Step 2 · Message ──────────────────────────────────────── */}
             {step === 2 && (
               <div className="space-y-6 md:space-y-8 w-full">
-                <h2
-                  className={`text-3xl md:text-6xl font-light tracking-tight ${colors.text}`}
-                >
+                <h2 className={`text-3xl md:text-6xl font-light tracking-tight ${colors.text}`}>
                   Tell me about the{' '}
-                  <span className="italic font-serif text-green-500">
-                    project.
-                  </span>
+                  <span className="italic font-serif text-green-500">project.</span>
                 </h2>
-                <div
-                  className={`w-full border ${colors.border} ${colors.cardBg} rounded-2xl p-4 md:p-6 relative transition-colors focus-within:border-green-500 shadow-sm`}
-                >
+                <div className={`w-full border ${colors.border} ${colors.cardBg} rounded-2xl p-4 md:p-6 relative transition-colors focus-within:border-green-500 shadow-sm`}>
                   <textarea
                     autoFocus
                     value={data.message}
-                    onChange={(e) =>
-                      setData((prev) => ({ ...prev, message: e.target.value }))
-                    }
+                    onChange={(e) => setData((prev) => ({ ...prev, message: e.target.value }))}
+                    onKeyDown={(e) => {
+                      // Shift+Enter advances to the next step when the minimum
+                      // character threshold is met; plain Enter inserts a newline.
+                      if (e.key === 'Enter' && e.shiftKey && canProgress()) {
+                        e.preventDefault();
+                        handleNext();
+                      }
+                    }}
                     placeholder="Briefly describe your vision..."
                     className={`w-full ${colors.inputBg} border-none text-lg md:text-xl outline-none resize-none h-32 md:h-40 leading-relaxed font-light ${colors.text} placeholder:opacity-30`}
                   />
-                  <div
-                    className={`flex justify-between items-center mt-3 md:mt-4 pt-3 md:pt-4 border-t ${colors.border}`}
-                  >
+                  <div className={`flex justify-between items-center mt-3 md:mt-4 pt-3 md:pt-4 border-t ${colors.border}`}>
                     {data.file ? (
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`text-[10px] text-green-500 uppercase tracking-widest ${colors.muted} truncate max-w-[120px] md:max-w-[180px]`}
-                        >
+                        <span className={`text-[10px] text-green-500 uppercase tracking-widest ${colors.muted} truncate max-w-[120px] md:max-w-[180px]`}>
                           {data.file.name}
                         </span>
                         <button
@@ -378,9 +362,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                       accept=".pdf,.doc,.docx"
                       onChange={handleFileChange}
                     />
-                    <span className={`text-[9px] font-mono ${colors.muted}`}>
-                      {data.message.length} chars
-                    </span>
+                    <div className="flex items-center gap-3">
+                      {/* Keyboard hint — visible only when the threshold is met */}
+                      {canProgress() && (
+                        <span className={`text-[9px] font-mono ${colors.muted} hidden md:inline`}>
+                          Shift + Enter to continue
+                        </span>
+                      )}
+                      <span className={`text-[9px] font-mono ${colors.muted}`}>
+                        {data.message.length} chars
+                      </span>
+                    </div>
                   </div>
                   {fileError && (
                     <p className="text-red-400 text-xs mt-3">{fileError}</p>
@@ -392,24 +384,23 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             {/* ── Step 3 · Budget ───────────────────────────────────────── */}
             {step === 3 && (
               <div className="space-y-8 md:space-y-12 w-full">
-                <h2
-                  className={`text-4xl md:text-7xl font-light tracking-tight ${colors.text}`}
-                >
+                <h2 className={`text-4xl md:text-7xl font-light tracking-tight ${colors.text}`}>
                   How should we{' '}
                   <span className="italic font-serif text-green-500">scale </span>this?
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3 w-full">
-                  {budgetOptions.map((b) => (
+                  {BUDGET_OPTIONS.map((b) => (
                     <button
                       key={b}
                       onClick={() => {
                         setData((prev) => ({ ...prev, budget: b }));
                         safeSetStep((prev) => prev + 1);
                       }}
-                      className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${data.budget === b
-                        ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
-                        : `${colors.border} ${colors.muted}`
-                        }`}
+                      className={`px-6 py-3 md:px-8 md:py-4 rounded-full border text-[10px] uppercase tracking-widest transition-all hover:border-green-500 hover:text-green-500 ${
+                        data.budget === b
+                          ? `${colors.selectedBg} ${colors.selectedText} border-transparent`
+                          : `${colors.border} ${colors.muted}`
+                      }`}
                     >
                       {b}
                     </button>
@@ -421,9 +412,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
             {/* ── Step 4 · Email + Submit ───────────────────────────────── */}
             {step === 4 && (
               <div className="space-y-8 md:space-y-10 w-full">
-                <h2
-                  className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}
-                >
+                <h2 className={`text-4xl md:text-8xl font-light tracking-tight ${colors.text}`}>
                   Where can I{' '}
                   <span className="italic font-serif text-green-500">reach</span> you?
                 </h2>
@@ -436,11 +425,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
                     setSubmitError(null);
                   }}
                   onKeyDown={(e) => {
-                    if (
-                      e.key === 'Enter' &&
-                      validateEmail(data.email) &&
-                      !isLoading
-                    ) {
+                    if (e.key === 'Enter' && validateEmail(data.email) && !isLoading) {
                       handleSubmit();
                     }
                   }}
@@ -501,11 +486,9 @@ export const ContactPage: React.FC<ContactPageProps> = ({
         </AnimatePresence>
       </main>
 
-
-      {/* ── Mobile nav row (below content, hidden on md+) ── */}
+      {/* ── Mobile nav row ──────────────────────────────────────────────── */}
       {step < 5 && (
         <div className="flex md:hidden justify-center items-center gap-10 pb-4">
-          {/* Back: hidden on step 0 */}
           {step > 0 ? (
             <button
               onClick={handlePrev}
@@ -514,17 +497,17 @@ export const ContactPage: React.FC<ContactPageProps> = ({
               <ArrowLeft size={24} strokeWidth={1} className="group-hover:-translate-x-1 transition-transform duration-150" />
             </button>
           ) : (
-            // Empty spacer to keep forward arrow centered when back is absent
+            // Spacer preserves arrow alignment when the back button is absent
             <div className="w-14 h-14" />
           )}
 
-          {/* Forward: only on steps that need it */}
           {(step === 0 || step === 2) && (
             <button
               disabled={!canProgress()}
               onClick={handleNext}
-              className={`p-4 rounded-full transition-all duration-150 group ${canProgress() ? colors.accent : 'opacity-30 cursor-not-allowed'
-                }`}
+              className={`p-4 rounded-full transition-all duration-150 group ${
+                canProgress() ? colors.accent : 'opacity-30 cursor-not-allowed'
+              }`}
             >
               <ArrowRight size={24} strokeWidth={1} className={canProgress() ? 'group-hover:translate-x-1 transition-transform duration-150' : ''} />
             </button>
@@ -533,8 +516,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       )}
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer className="w-full max-w-3xl mx-auto px-4 flex flex-col md:flex-row justify-center items-center  relative z-10 pb-22">
-
+      <footer className="w-full max-w-3xl mx-auto px-4 flex flex-col md:flex-row justify-center items-center relative z-10 pb-22">
         <div className="flex gap-20 md:gap-50">
           {(
             [
