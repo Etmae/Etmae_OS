@@ -191,7 +191,7 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       // resolution — no animation is in flight — so the guard must be cleared
       // manually to prevent a silent no-op.
       isTransitioning.current = false;
-      safeSetStep(() => 5);
+      setStep(5);
 
     } catch (err) {
       setSubmitError(
