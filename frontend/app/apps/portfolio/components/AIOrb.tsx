@@ -81,7 +81,7 @@ export default function HeroOrb({ onNavigate }: HeroOrbProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleReset}
-            className="fixed inset-0 z-9998g-black/60 backdrop-blur-xl"
+            className="fixed inset-0 z-9998 g-black/60 backdrop-blur-xl"
           />
         )}
       </AnimatePresence>

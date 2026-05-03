@@ -152,10 +152,10 @@ export const ContactPage: React.FC<ContactPageProps> = ({
 
   const handleSubmit = async () => {
     if (!validateEmail(data.email) || isLoading) return;
-
+  
     setIsLoading(true);
     setSubmitError(null);
-
+  
     try {
       const formData = new FormData();
       formData.append('name', data.name);
@@ -164,36 +164,38 @@ export const ContactPage: React.FC<ContactPageProps> = ({
       formData.append('budget', data.budget);
       formData.append('message', data.message);
       if (data.file) formData.append('file', data.file);
-
+  
+      console.log('[contact] submitting to:', `${API_BASE}/api/contact`);
+  
       const response = await fetch(`${API_BASE}/api/contact`, {
         method: 'POST',
         mode: 'cors',
-        // Content-Type is intentionally omitted — the browser sets the
-        // multipart/form-data boundary automatically for FormData payloads.
         body: formData,
       });
-
+  
+      console.log('[contact] response.ok:', response.ok);
+      console.log('[contact] response.status:', response.status);
+      console.log('[contact] content-type:', response.headers.get('content-type'));
+  
       const contentType = response.headers.get('content-type');
       const result = contentType?.includes('application/json')
         ? await response.json()
         : { error: await response.text() };
-
+  
+      console.log('[contact] parsed result:', result);
+  
       if (!response.ok) {
         throw new Error(result.error || `Error: ${response.status}`);
       }
-
+  
+      console.log('[contact] success — advancing to step 5');
       setSubmittedName(data.name);
       setData(INITIAL_DATA);
-
-      // Reset the transition guard before advancing to the success step.
-      // safeSetStep is ordinarily gated behind this ref to block double-taps
-      // during exit animations. Here the call originates from an async
-      // resolution — no animation is in flight — so the guard must be cleared
-      // manually to prevent a silent no-op.
       isTransitioning.current = false;
       setStep(5);
-
+  
     } catch (err) {
+      console.error('[contact] caught error:', err);
       setSubmitError(
         err instanceof Error
           ? err.message

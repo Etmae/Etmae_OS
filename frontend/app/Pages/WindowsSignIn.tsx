@@ -14,7 +14,7 @@ interface SignInProps {
 
 export const WindowsSignIn: React.FC<SignInProps> = ({
   backgroundImage = 'https://wallpapercave.com/wp/wp10363825.jpg',
-  userName = 'Etmae',
+  userName = 'Etmae Virtual OS',
   userAvatar = lightLogo,
   onSuccess,
 }) => {

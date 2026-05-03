@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { APP_REGISTRY } from '../apps/registry';
 import type { ComponentType } from 'react';
 
@@ -363,10 +363,11 @@ export const useWindowStore = create<WindowStore>()(
 }),
 {
   name: 'window-store',
+  storage: createJSONStorage(() => sessionStorage),
   partialize: (state) => ({
     windows: state.windows,
     windowOrder: state.windowOrder,
   }),
 }
   )
-);
+);                          

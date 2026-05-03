@@ -1,26 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * Reduced frame count to shorten one full animation cycle.
- * This directly decreases perceived wait time without removing animation.
+ * SEAMLESS LOOP LOGIC:
+ * To eliminate the pause, we add the first value to the end of the array.
+ * Each array now has 7 points, creating 6 equal "beats" of motion.
  */
-const WAVE_FRAMES = [
-  [0.6, 1.0, 0.65],
-  [0.85, 0.7, 0.95],
-  [0.95, 0.6, 0.75],
-  [0.7, 0.95, 0.6],
-  [0.6, 0.75, 1.0],
-  [0.85, 0.6, 0.7],
-];
+const BAR_1 = [0.6, 0.85, 0.95, 0.7, 0.6, 0.85, 0.6];
+const BAR_2 = [1.0, 0.7, 0.6, 0.95, 0.75, 0.6, 1.0];
+const BAR_3 = [0.65, 0.95, 0.75, 0.6, 1.0, 0.7, 0.65];
 
 /**
- * Static geometry for animated bars.
+ * Precision timing: 0 to 1 divided into 6 equal segments.
  */
+const FRAME_TIMES = [0, 1/6, 2/6, 3/6, 4/6, 5/6, 1];
+
 const BARS = [
-  { id: 'bar-1', cx: 77.6, cy: 95.6, w: 16.4, h: 58 },
-  { id: 'bar-2', cx: 99.2, cy: 106.0, w: 16.4, h: 81 },
-  { id: 'bar-3', cx: 120.4, cy: 118.0, w: 16.4, h: 58 },
+  { id: 'bar-1', cx: 77.6, cy: 95.6, w: 16.4, h: 58, keyframes: BAR_1 },
+  { id: 'bar-2', cx: 99.2, cy: 106.0, w: 16.4, h: 81, keyframes: BAR_2 },
+  { id: 'bar-3', cx: 120.4, cy: 118.0, w: 16.4, h: 58, keyframes: BAR_3 },
 ];
 
 interface LoaderProps {
@@ -32,25 +30,12 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
   isLoading,
   onLoopComplete
 }) => {
-  const [barScales, setBarScales] = useState([1, 1, 1]);
-  const frameRef = useRef(0);
-
   useEffect(() => {
     if (!isLoading) return;
 
-    /**
-     * Faster frame interval:
-     * - Reduced from 160ms → 110ms for snappier animation
-     * - Combined with fewer frames, loop completes significantly quicker
-     */
     const interval = setInterval(() => {
-      if (frameRef.current === WAVE_FRAMES.length - 1) {
-        onLoopComplete();
-      }
-
-      frameRef.current = (frameRef.current + 1) % WAVE_FRAMES.length;
-      setBarScales(WAVE_FRAMES[frameRef.current]);
-    }, 110);
+      onLoopComplete();
+    }, 660);
 
     return () => clearInterval(interval);
   }, [isLoading, onLoopComplete]);
@@ -59,31 +44,25 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
     <AnimatePresence>
       {isLoading && (
         <motion.div
-          key="loader"
-          /**
-           * Faster exit transition to avoid lingering after loading completes
-           */
-          exit={{
-            y: '-100%',
-            transition: { duration: 0.55, ease: [0.76, 0, 0.24, 1] }
+          key="portfolio-loader"
+          initial={{ opacity: 1 }}
+          exit={{ 
+            y: '-100%', 
+            transition: { duration: 0.5, ease: [0.76, 0, 0.24, 1] } 
           }}
-          className="fixed inset-0 z-9999 flex items-center justify-center bg-[#050505] pointer-events-none select-none"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#050505] pointer-events-none select-none"
         >
-          <svg width="200" height="200" viewBox="0 0 200 200" fill="none" overflow="visible">
-            
-            {/* Left Dot */}
-            <motion.circle
-              cx={58.4}
-              cy={82.8}
-              r={8.2}
-              fill="#c8c8c8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }} // quicker fade-in
-            />
+          <svg 
+            width="200" 
+            height="200" 
+            viewBox="0 0 200 200" 
+            fill="none" 
+            overflow="visible"
+          >
+            <circle cx={58.4} cy={82.8} r={8.2} fill="#c8c8c8" />
+            <circle cx={140.8} cy={128.0} r={8.2} fill="#c8c8c8" />
 
-            {/* Animated Bars */}
-            {BARS.map((b, i) => (
+            {BARS.map((b) => (
               <g key={b.id} transform={`translate(${b.cx}, ${b.cy}) rotate(36)`}>
                 <motion.rect
                   x={-b.w / 2}
@@ -92,30 +71,24 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
                   height={b.h}
                   rx={b.w / 2}
                   fill="#c8c8c8"
-                  animate={{ scaleY: barScales[i] }}
-                  /**
-                   * Reduced transition duration for tighter, more responsive motion
-                   */
-                  transition={{ duration: 0.1, ease: 'easeInOut' }}
+                  initial={{ scaleY: b.keyframes[0] }}
+                  animate={{ 
+                    scaleY: b.keyframes 
+                  }}
+                  transition={{
+                    duration: 0.66,
+                    repeat: Infinity,
+                    repeatType: "loop", // Explicitly loop back to start
+                    times: FRAME_TIMES,
+                    ease: "linear", // Mandatory for rhythmic spacing
+                  }}
                   style={{
-                    originX: 0.5,
                     originY: 0.5,
                     transformBox: 'fill-box'
                   }}
                 />
               </g>
             ))}
-
-            {/* Right Dot */}
-            <motion.circle
-              cx={140.8}
-              cy={128.0}
-              r={8.2}
-              fill="#c8c8c8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2 }}
-            />
           </svg>
         </motion.div>
       )}
