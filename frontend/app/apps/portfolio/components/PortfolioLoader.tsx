@@ -1,19 +1,9 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * SEAMLESS LOOP LOGIC:
- * To eliminate the pause, we add the first value to the end of the array.
- * Each array now has 7 points, creating 6 equal "beats" of motion.
- */
 const BAR_1 = [0.6, 0.85, 0.95, 0.7, 0.6, 0.85, 0.6];
 const BAR_2 = [1.0, 0.7, 0.6, 0.95, 0.75, 0.6, 1.0];
 const BAR_3 = [0.65, 0.95, 0.75, 0.6, 1.0, 0.7, 0.65];
-
-/**
- * Precision timing: 0 to 1 divided into 6 equal segments.
- */
-const FRAME_TIMES = [0, 1/6, 2/6, 3/6, 4/6, 5/6, 1];
 
 const BARS = [
   { id: 'bar-1', cx: 77.6, cy: 95.6, w: 16.4, h: 58, keyframes: BAR_1 },
@@ -33,11 +23,12 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
   useEffect(() => {
     if (!isLoading) return;
 
-    const interval = setInterval(() => {
+    // Run for ~2 seconds (3 loops of 0.66s) then open portfolio
+    const timer = setTimeout(() => {
       onLoopComplete();
-    }, 660);
+    }, 2000);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(timer);
   }, [isLoading, onLoopComplete]);
 
   return (
@@ -59,9 +50,11 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
             fill="none" 
             overflow="visible"
           >
+            {/* Structural Punctuation (Brackets) */}
             <circle cx={58.4} cy={82.8} r={8.2} fill="#c8c8c8" />
             <circle cx={140.8} cy={128.0} r={8.2} fill="#c8c8c8" />
 
+            {/* Equalizer Waveform Bars */}
             {BARS.map((b) => (
               <g key={b.id} transform={`translate(${b.cx}, ${b.cy}) rotate(36)`}>
                 <motion.rect
@@ -71,16 +64,16 @@ export const PortfolioLoader: React.FC<LoaderProps> = ({
                   height={b.h}
                   rx={b.w / 2}
                   fill="#c8c8c8"
-                  initial={{ scaleY: b.keyframes[0] }}
                   animate={{ 
                     scaleY: b.keyframes 
                   }}
                   transition={{
                     duration: 0.66,
                     repeat: Infinity,
-                    repeatType: "loop", // Explicitly loop back to start
-                    times: FRAME_TIMES,
-                    ease: "linear", // Mandatory for rhythmic spacing
+                    repeatType: "loop",
+                    ease: "easeInOut",
+                    times: [0, 0.16, 0.33, 0.5, 0.66, 0.83, 1],
+                    delay: 0.05 // Tiny delay to ensure DOM is ready
                   }}
                   style={{
                     originY: 0.5,

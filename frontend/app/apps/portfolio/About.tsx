@@ -17,6 +17,8 @@ import Cyberleo from '../../assets/img/portfolio/Cyberleo.png';
 import Adegboola from '../../assets/img/portfolio/Adegboola.png';
 import Goodluck from '../../assets/img/portfolio/Goodluck.png';
 import AboutImg from '../../assets/img/portfolio/AboutImg.png';
+import Vanilla from '../../assets/img/portfolio/Vanilla.png';
+import IfeBanks from '../../assets/img/portfolio/IfeBanks.png';
 
 type CircleNode =
   | {
@@ -46,8 +48,20 @@ type CircleNode =
 
 // --- Data ---
 const circleNodes: CircleNode[] = [
+
   {
     id: 0,
+    name: "Fagbohun Emmanuel",
+    role: "Product Designer",
+    link: "https://linktr.ee/vanillastudio_ng",
+    image: Vanilla,
+    avatar: Vanilla,
+    bio: "Helping startups and businesses build powerful brands and interfaces that users love. I obsess over every pixel and interaction to create seamless digital experiences.",
+    work: "Brand Design / UI/UX",
+    tags: ["#UI/UX", "#Design", "#Startup"]
+  },
+  {
+    id: 1,
     name: "Adegbola Michael",
     role: "Blockchain Dev",
     link: "https://www.linkedin.com/in/michael-adegbola-510aa6318?utm_source=share_via&utm_content=profile&utm_medium=member_android",
@@ -58,7 +72,7 @@ const circleNodes: CircleNode[] = [
     tags: ["#Cryptocurrency", "#SmartContracts"]
   },
   {
-    id: 1,
+    id: 2,
     name: "AbdulAzeez Hibullahi CN",
     role: "Certified Network Pentester and Security Researcher",
     link: "https://linkedin.com/in/cyb3rle0",
@@ -69,7 +83,18 @@ const circleNodes: CircleNode[] = [
     tags: ["#KaliLinux", "#CTF"]
   },
   {
-    id: 2,
+    id: 4,
+    name: "Ife Bankole",
+    role: "Full-Stack Engineer | ML Engineer",
+    link: "https://ifebanks.vercel.app/",
+    image: IfeBanks,
+    avatar: IfeBanks,
+    bio: "Full-stack engineer with a passion for building scalable web applications. I thrive on turning complex problems into elegant solutions, one line of code at a time.",
+    work: "Full-Stack Development",
+    tags: ["#FullStack", "#WebDevelopment"]
+  },
+  {
+    id: 3,
     name: "Goodluck Temilolu Oyebisi ",
     role: "Cybersecurity Analyst",
     link: "https://www.linkedin.com/in/goodluck-oyebisi",
@@ -79,7 +104,6 @@ const circleNodes: CircleNode[] = [
     work: "Cybersecurity / Ethical Hacker",
     tags: ["#bug bounty Hunter", "#Web Pentester"]
   },
-
 ];
 
 // --- Sub-Component: Circular Progress Avatar ---

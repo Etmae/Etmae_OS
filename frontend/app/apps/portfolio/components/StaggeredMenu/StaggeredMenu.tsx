@@ -55,7 +55,7 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   changeMenuColorOnOpen = true,
   accentColor = '#5227FF',
   isFixed = false,
-  closeOnClickAway = true,
+  closeOnClickAway = false,
   hideToggleButton = false,
   externalOpen,
   hideInternalLogo = false,
@@ -423,10 +423,9 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
   const handleItemClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, item: StaggeredMenuItem) => {
       e.preventDefault();
-      closeMenu();
-      if (onItemClickRef.current) setTimeout(() => onItemClickRef.current!(item), 80);
+      if (onItemClickRef.current) onItemClickRef.current(item);
     },
-    [closeMenu]
+    []
   );
 
   // ── Click-away ────────────────────────────────────────────────────────────
