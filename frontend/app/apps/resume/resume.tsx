@@ -41,6 +41,30 @@ interface ResumeAppProps {
 const ResumeApp: React.FC<ResumeAppProps> = () => {
   const [loadError, setLoadError] = useState(false);
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(PDF_SRC);
+      if (!response.ok) throw new Error('Failed to fetch PDF');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Olujimi_Erioluwa_Resume.pdf';
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download failed:', error);
+      // Fallback to direct link
+      window.open(PDF_SRC, '_blank');
+    }
+  };
+
   return (
     <div
       style={{
@@ -106,9 +130,8 @@ const ResumeApp: React.FC<ResumeAppProps> = () => {
       </div>
 
       {/* ── Floating Download Button ── */}
-      <a
-        href={PDF_SRC}
-        download="Olujimi_Erioluwa_Resume.pdf"
+      <button
+        onClick={handleDownload}
         title="Download PDF"
         style={{
           position: 'absolute',
@@ -126,6 +149,7 @@ const ResumeApp: React.FC<ResumeAppProps> = () => {
           fontWeight: 600,
           textDecoration: 'none',
           cursor: 'pointer',
+          border: 'none',
           boxShadow: '0 6px 16px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2)',
           transition: 'transform 0.15s ease, background 0.15s ease',
         }}
@@ -146,7 +170,7 @@ const ResumeApp: React.FC<ResumeAppProps> = () => {
       >
         <Download size={16} />
         Download Resume
-      </a>
+      </button>
     </div>
   );
 };

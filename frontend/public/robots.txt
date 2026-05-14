@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://etmae.pages.dev/sitemap.xml
