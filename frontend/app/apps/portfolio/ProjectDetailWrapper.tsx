@@ -18,6 +18,13 @@ import EtmaeImgHero from '../../assets/img/portfolio/EtmaeImgHero.png'
 import EtmaeImgHeroLight from '../../assets/img/portfolio/EtmaeImgHeroLight.png'
 import EtmaeLogo from '../../assets/img/portfolio/EtmaeLogo.png'
 
+//Fudco Assests
+import FudcoDashboard from '../../assets/img/portfolio/fudcoDashboard.png'
+import FudcoPOS from '../../assets/img/portfolio/fudcoPOS.png'
+import FudcoReceipts from '../../assets/img/portfolio/fudcoReceipt.png'
+import FudcoCheckout from '../../assets/img/portfolio/fudcoCheckout.png'
+import FudcoDashboardMb from '../../assets/img/portfolio/fudcoDashboardMobile.png'
+
 import Chatbox from  '../../assets/img/portfolio/Chatbox.png'
 
 
@@ -41,67 +48,73 @@ export type Project = {
 };
 
 export const PROJECTS_DATA: Project[] = [
-  { 
-    id: '1', 
-    number: '01', 
-    title: 'Looms & Aura', 
-    role: 'Fashion Branding', 
+  {
+    id: '1',
+    number: '01',
+    title: 'Looms & Aura',
+    role: 'Fashion Branding',
     image: LoomsImg,
     video: LaVideo,
     heroMediaType: 'video',
-    descriptionTitle: "Luxury Fashion E-commerce",
-    overview: "A luxury fashion e-commerce platform blending editorial elegance with seamless shopping.",
-    fullDescription: "A luxury fashion e-commerce platform blending editorial elegance with seamless shopping. Curated collections, video showcases, and an elevated browsing experience designed to transform casual browsing into a curated discovery journey."
+    descriptionTitle: 'Luxury Fashion E-commerce',
+    overview: 'A luxury fashion e-commerce platform blending editorial elegance with seamless shopping.',
+    fullDescription:
+      'A luxury fashion e-commerce platform blending editorial elegance with seamless shopping. Curated collections, video showcases, and an elevated browsing experience designed to transform casual browsing into a curated discovery journey.',
   },
-  { 
-    id: '2', 
-    number: '02', 
-    title: 'Agrotech', 
-    role: 'Agricultural Agency Platform', 
-    image: AgrotechImg,
+  {
+    id: '2',
+    number: '02',
+    title: 'Fudco',
+    role: 'Retail POS System',
+    image: FudcoDashboard,
     video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
     heroMediaType: 'image',
-    descriptionTitle: "Innovation in Farming",
-    overview: "Connecting farmers with innovative agrotech solutions.",
-    fullDescription: "An agricultural agency platform connecting farmers with innovative agrotech solutions. Streamlined access to biotechnology, greenhouse management, and sustainable farming extension services that empower rural communities."
+    descriptionTitle: 'Django Point-of-Sale Platform',
+    overview: 'A full-featured retail POS and inventory system with manager/cashier roles, checkout workflow, sales analytics, and restock alerts.',
+    fullDescription:
+      'Fudco is a Django-powered point-of-sale platform designed for modern retail operations. It includes inventory management, cashier-facing POS checkout, automated low-stock alerts, sales reporting dashboards, receipt generation, and role-based user management. The system supports cash, card, transfer, and mobile money payments while keeping inventory synchronized in real time.',
   },
-  { 
-    id: '3', 
-    number: '03', 
-    title: 'Etmae Virtual OS', 
-    role: 'Full-Stack Integration', 
+  {
+    id: '3',
+    number: '03',
+    title: 'Etmae Virtual OS',
+    role: 'Full-Stack Integration',
     image: EtmaeImgDesktop,
     video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
     heroMediaType: 'video',
-    descriptionTitle: "Personal Portfolio",
-    overview: "A Windows 11 inspired portfolio experience. A fully immersive OS-like environment with draggable windows, a functional start menu, and interactive applications showcasing work in a familiar desktop metaphor.",
-    fullDescription: "A Windows 11 inspired portfolio experience. A fully immersive OS-like environment with draggable windows, a functional start menu, and interactive applications showcasing work in a familiar desktop metaphor."
+    descriptionTitle: 'Personal Portfolio',
+    overview:
+      'A Windows 11 inspired portfolio experience. A fully immersive OS-like environment with draggable windows, a functional start menu, and interactive applications showcasing work in a familiar desktop metaphor.',
+    fullDescription:
+      'A Windows 11 inspired portfolio experience. A fully immersive OS-like environment with draggable windows, a functional start menu, and interactive applications showcasing work in a familiar desktop metaphor.',
   },
-  { 
-    id: '4', 
-    number: '04', 
-    title: 'SQUADRON', 
-    role: '3D WebGL', 
+  {
+    id: '4',
+    number: '04',
+    title: 'SQUADRON',
+    role: '3D WebGL',
     video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
     image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1974',
     heroMediaType: 'image',
-    descriptionTitle: "Kinetic Motion",
-    overview: "A high-performance dogfighting simulation. The technical challenge was maintaining 120fps while rendering complex volumetric clouds and physics-based particle trails. Every UI element was designed to mimic high-altitude telemetry.",
-    fullDescription: "A high-performance dogfighting simulation. The technical challenge was maintaining 120fps while rendering complex volumetric clouds and physics-based particle trails. Every UI element was designed to mimic high-altitude telemetry.",
+    descriptionTitle: 'Kinetic Motion',
+    overview:
+      'A high-performance dogfighting simulation. The technical challenge was maintaining 120fps while rendering complex volumetric clouds and physics-based particle trails. Every UI element was designed to mimic high-altitude telemetry.',
+    fullDescription:
+      'A high-performance dogfighting simulation. The technical challenge was maintaining 120fps while rendering complex volumetric clouds and physics-based particle trails. Every UI element was designed to mimic high-altitude telemetry.',
     ongoing: true,
   },
-  { 
-    id: '5', 
-    number: '05', 
-    title: 'GOC Agency', 
-    role: 'Full-Stack development', 
+  {
+    id: '5',
+    number: '05',
+    title: 'Agrotech',
+    role: 'Agricultural Agency Platform',
+    image: AgrotechImg,
     video: 'https://samplelib.com/lib/preview/mp4/sample-5s.mp4',
-    image: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070',
     heroMediaType: 'image',
-    descriptionTitle: "Online Store",
-    overview: "A computer online store specializing in custom builds and high-end components.",
-    fullDescription: "A computer online store specializing in custom builds and high-end components. The platform features a dynamic product configurator, real-time inventory updates, and a sleek, modern design that appeals to tech enthusiasts.",
-    ongoing: true,
+    descriptionTitle: 'Innovation in Farming',
+    overview: 'Connecting farmers with innovative agrotech solutions.',
+    fullDescription:
+      'An agricultural agency platform connecting farmers with innovative agrotech solutions. Streamlined access to biotechnology, greenhouse management, and sustainable farming extension services that empower rural communities.',
   },
 ];
 
@@ -123,13 +136,13 @@ export const PROJECT_FACTORY_CONTENT: Record<string, ProjectFactoryEntry> = {
     ],
   },
   '2': {
-    tags: ['NA', 'NA', 'NA', 'NA', 'NA', 'NA'],
+    tags: ['Dashboard', 'Inventory', 'POS', 'Reports', 'Receipts', 'Checkout'],
     media: [
-      { type: 'image', src: NA },
-      { type: 'image', src: NA },
-      { type: 'image', src: NA },
-      { type: 'image', src: NA },
-      { type: 'image', src: NA },
+      { type: 'image', src: FudcoPOS},
+      { type: 'image', src:  FudcoDashboard },
+      { type: 'image', src: FudcoCheckout},
+      { type: 'image', src: FudcoReceipts },
+      { type: 'image', src: FudcoPOS },
     ],
   },
   '3': {
@@ -137,7 +150,7 @@ export const PROJECT_FACTORY_CONTENT: Record<string, ProjectFactoryEntry> = {
     media: [
       { type: 'image', src: EtmaeImgHero },
       { type: 'image', src: EtmaeLogo },
-      { type: 'image', src: Chatbox},
+      { type: 'image', src: Chatbox },
       { type: 'image', src: EtmaeImgHeroLight },
       { type: 'image', src: NA },
     ],
@@ -145,7 +158,7 @@ export const PROJECT_FACTORY_CONTENT: Record<string, ProjectFactoryEntry> = {
   '4': {
     tags: ['NA', 'NA', 'NA', 'NA', 'NA', 'NA'],
     media: [
-      { type: 'image', src: NA},
+      { type: 'image', src: NA },
       { type: 'image', src: NA },
       { type: 'image', src: NA },
       { type: 'image', src: NA },

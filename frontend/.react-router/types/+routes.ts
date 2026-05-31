@@ -26,6 +26,9 @@ type Pages = {
   "/hero": {
     params: {};
   };
+  "/about": {
+    params: {};
+  };
   "/apps/paint": {
     params: {};
   };
@@ -43,7 +46,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/signin" | "/lockscreen" | "/desktop" | "/hero" | "/apps/paint" | "/fullcontact" | "/off" | "/terminal";
+    page: "/" | "/signin" | "/lockscreen" | "/desktop" | "/hero" | "/about" | "/apps/paint" | "/fullcontact" | "/off" | "/terminal";
   };
   "routes/_index.tsx": {
     id: "routes/_index";
@@ -65,6 +68,10 @@ type RouteFiles = {
     id: "routes/hero";
     page: "/hero";
   };
+  "routes/about.tsx": {
+    id: "routes/about";
+    page: "/about";
+  };
   "routes/paint.tsx": {
     id: "routes/paint";
     page: "/apps/paint";
@@ -77,8 +84,8 @@ type RouteFiles = {
     id: "routes/off";
     page: "/off";
   };
-  "./apps/terminal/index.ts": {
-    id: "apps/terminal/index";
+  "routes/terminal.tsx": {
+    id: "routes/terminal";
     page: "/terminal";
   };
 };
@@ -90,8 +97,9 @@ type RouteModules = {
   "routes/lockscreen": typeof import("./app/routes/lockscreen.tsx");
   "routes/desktop": typeof import("./app/routes/desktop.tsx");
   "routes/hero": typeof import("./app/routes/hero.tsx");
+  "routes/about": typeof import("./app/routes/about.tsx");
   "routes/paint": typeof import("./app/routes/paint.tsx");
   "routes/fullcontact": typeof import("./app/routes/fullcontact.tsx");
   "routes/off": typeof import("./app/routes/off.tsx");
-  "apps/terminal/index": typeof import("./app/./apps/terminal/index.ts");
+  "routes/terminal": typeof import("./app/routes/terminal.tsx");
 };

@@ -1,5 +1,5 @@
 const ALLOWED_ORIGINS = [
-  "http://localhost:5173",   
+  "https://localhost:5173",   
   "http://localhost:8788",   
   "http://127.0.0.1:8788",
   "https://etmae-os.pages.dev",
